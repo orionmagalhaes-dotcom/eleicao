@@ -140,7 +140,12 @@ let isQuerying = false;
 document.addEventListener('DOMContentLoaded', () => {
   renderPolls(currentTab);
   setupEvents();
-  updateTimestamp();
+  const savedLastTime = localStorage.getItem('ceara_polls_last_time');
+  if (savedLastTime) {
+    lastUpdatedTime.innerHTML = `Sincronizado ${savedLastTime}`;
+  } else {
+    updateTimestamp();
+  }
 });
 
 function setupEvents() {
@@ -419,17 +424,52 @@ Destaque a disputa entre Elmano de Freitas e Ciro Gomes, a margem de erro e o qu
 
     const data = await response.json();
     handleAiResponse(data);
-    setStatus('Dados sincronizados com a IA', 'normal');
+    updateHomeScreen('Sincronizado com a IA');
   } catch (err) {
     console.warn('API Gemini fallback ativado:', err.message);
     // Fallback inteligente com síntese em tempo real dos institutos
     renderFallbackAiAnalysis();
-    setStatus('Dados oficiais consolidados de hoje (03/Out)', 'normal');
+    updateHomeScreen('Dados oficiais consolidados de hoje');
   } finally {
     isQuerying = false;
     setLoadingState(false);
-    updateTimestamp();
   }
+}
+
+// Atualiza diretamente a tela inicial e re-renderiza os cards com feedback visual
+function updateHomeScreen(sourceText = '') {
+  // 1. Ativa a aba da tela inicial ('todas')
+  currentTab = 'todas';
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    if (btn.dataset.tab === 'todas') {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // 2. Re-renderiza todos os cards e tabelas da tela inicial
+  renderPolls('todas');
+
+  // 3. Aplica animação de atualização nos cards recém-renderizados
+  const cards = document.querySelectorAll('.poll-card');
+  cards.forEach(card => {
+    card.classList.remove('updated-pulse');
+    void card.offsetWidth; // Força reflow para reiniciar animação
+    card.classList.add('updated-pulse');
+  });
+
+  // 4. Atualiza horário e indicador
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  lastUpdatedTime.innerHTML = `Atualizado às ${timeStr} <span class="badge-just-updated">● Recém-atualizado</span>`;
+  localStorage.setItem('ceara_polls_last_time', `Hoje às ${timeStr}`);
+
+  // 5. Mensagem de status confirmando atualização da tela inicial
+  setStatus(`✅ Tela inicial atualizada com sucesso (${sourceText})`, 'normal');
+
+  // 6. Rola suavemente para a tela inicial
+  pollsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Síntese jornalística analítica gerada quando os servidores do Gemini estiverem em sobrecarga
@@ -448,7 +488,6 @@ Os levantamentos mais recentes divulgados pelos três maiores institutos de pesq
 
   aiContent.innerHTML = formatMarkdown(fallbackAnalysis);
   aiSummarySection.style.display = 'block';
-  aiSummarySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function handleAiResponse(data) {
@@ -463,7 +502,6 @@ function handleAiResponse(data) {
   if (text) {
     aiContent.innerHTML = formatMarkdown(text);
     aiSummarySection.style.display = 'block';
-    aiSummarySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 
