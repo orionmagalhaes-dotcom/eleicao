@@ -107,31 +107,44 @@ const POLLS_DATA = [
   {
     id: 'atlas',
     institute: 'AtlasIntel',
-    type: 'Última Rodada Disponível • Coleta de Setembro',
-    publishedAt: '29 de Setembro de 2026',
-    publishedHour: '19h00',
+    type: 'Votos Válidos, Estimulada e 2º Turno • Rodada Consolidada',
+    publishedAt: '30 de Setembro de 2026',
+    publishedHour: '18h00',
     fieldPeriod: '23 a 28 de Setembro de 2026',
     isCollectedToday: false,
     tseReg: 'CE-01709/2026',
-    sample: '1.600 eleitores',
-    marginError: '± 2,5 pontos percentuais',
+    sample: '1.808 eleitores (metodologia RDR)',
+    marginError: '± 2,5 a 3,0 pontos percentuais',
     confidence: '95%',
+    contractor: 'Focus Comunicação e Mídia / InfoMoney / Estadão / Poder360',
     source: {
-      name: 'AtlasIntel Oficial / Estadão / InfoMoney',
+      name: 'AtlasIntel Oficial / InfoMoney / Estadão',
       url: 'https://atlasintel.org'
     },
-    timingClarification: '⚠️ Esclarecimento: Entrevistas realizadas entre 23 e 28 de setembro e publicadas em 29/set. A AtlasIntel não divulgou levantamento novo na véspera (03/out).',
+    timingClarification: '✅ Pesquisa Capturada: Levantamento da AtlasIntel divulgado em 30 de setembro (coleta 23 a 28/set com 1.808 eleitores sob registro TSE CE-01709/2026). Apresenta cenário de votos válidos, votos totais (estimulada) e simulação de segundo turno.',
     previousPoll: {
       date: '18 de Setembro de 2026',
       tseReg: 'CE-00980/2026',
       label: 'Rodada Anterior AtlasIntel'
     },
+    secondRound: {
+      elmano: 50.5,
+      ciro: 49.5
+    },
+    stimulatedTotals: [
+      { label: 'Elmano de Freitas (PT)', pct: 49.0 },
+      { label: 'Ciro Gomes (PSDB)', pct: 47.6 },
+      { label: 'Brancos / Nulos / Nenhum', pct: 1.8 },
+      { label: 'Não sabe / Indecisos', pct: 1.2 },
+      { label: 'Delegado Huggo (Missão)', pct: 0.4 }
+    ],
     candidates: [
       { name: 'Elmano de Freitas', party: 'PT', pct: 50.3, prevPct: 49.6, barClass: 'bar-pt' },
       { name: 'Ciro Gomes', party: 'PSDB', pct: 48.9, prevPct: 49.2, barClass: 'bar-psdb' },
-      { name: 'Delegado Huggo', party: 'Missão', pct: 0.8, prevPct: 1.2, barClass: 'bar-missao' }
+      { name: 'Delegado Huggo', party: 'Missão', pct: 0.4, prevPct: 1.2, barClass: 'bar-missao' },
+      { name: 'Outros Candidatos', party: 'Diversos', pct: 0.4, prevPct: 0.0, barClass: 'bar-outros' }
     ],
-    note: 'Empate técnico nos votos válidos (50,3% x 48,9%). Simulação 2º turno: Elmano 50,5% x Ciro Gomes 49,5%.',
+    note: 'Votos válidos 1º turno: Elmano 50,3% x Ciro Gomes 48,9%. Cenário estimulado geral (votos totais): Elmano 49,0% x Ciro 47,6%. Simulação de 2º turno: Elmano 50,5% x Ciro 49,5% (empate técnico rigoroso). Contratante: Focus Comunicação / InfoMoney.',
     socials: [
       { label: '🌐 atlasintel.org', url: 'https://atlasintel.org' },
       { label: '𝕏 @atlasintel', url: 'https://twitter.com/atlasintel' },
@@ -367,6 +380,31 @@ function renderPolls(tab) {
       ? `<div class="poll-publish-highlight today">📢 <strong>Publicada Hoje (03/Out):</strong> às ${escapeHTML(poll.publishedHour)}</div>`
       : `<div class="poll-publish-highlight past">📢 <strong>Publicada em:</strong> ${escapeHTML(poll.publishedAt)}${poll.publishedHour ? ` às ${escapeHTML(poll.publishedHour)}` : ''}</div>`;
 
+    const secondRoundBox = poll.secondRound ? `
+      <div style="margin-top: 1rem; padding: 0.85rem 1rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: var(--radius-sm);">
+        <div style="font-size: 0.85rem; font-weight: 700; color: #93C5FD; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between;">
+          <span>🎯 Simulação de 2º Turno (${escapeHTML(poll.institute)}):</span>
+          <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); color: #93C5FD; padding: 0.15rem 0.5rem; border-radius: 999px;">Votos Válidos</span>
+        </div>
+        <div style="display: flex; gap: 1.25rem; font-size: 0.95rem; flex-wrap: wrap;">
+          <span>🔴 <strong>Elmano de Freitas (PT):</strong> <span style="color: #EF4444; font-weight: 700;">${poll.secondRound.elmano.toFixed(1)}%</span></span>
+          <span>🔵 <strong>Ciro Gomes (PSDB):</strong> <span style="color: #38BDF8; font-weight: 700;">${poll.secondRound.ciro.toFixed(1)}%</span></span>
+        </div>
+        <div style="font-size: 0.75rem; color: #94A3B8; margin-top: 0.35rem;">
+          Empate técnico rigoroso na margem de erro. Votos totais estimulados: Elmano 49,6% x Ciro 48,6%.
+        </div>
+      </div>
+    ` : '';
+
+    const stimulatedBox = poll.stimulatedTotals ? `
+      <div style="margin-top: 0.75rem; padding: 0.65rem 0.85rem; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: var(--radius-sm); font-size: 0.8rem; color: #CBD5E1;">
+        <span style="color: #93C5FD; font-weight: 600;">📋 Cenário Estimulado de Votos Totais:</span>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.3rem;">
+          ${poll.stimulatedTotals.map(t => `<span style="background: rgba(255,255,255,0.04); padding: 0.15rem 0.45rem; border-radius: 4px;">${t.label}: <strong>${t.pct.toFixed(1)}%</strong></span>`).join('')}
+        </div>
+      </div>
+    ` : '';
+
     card.innerHTML = `
       <div class="poll-header">
         <div>
@@ -385,6 +423,8 @@ function renderPolls(tab) {
         ${candidatesHtml}
       </div>
 
+      ${secondRoundBox}
+      ${stimulatedBox}
       ${prevPollBox}
 
       <div class="poll-footer-info">
@@ -430,7 +470,7 @@ function renderComparativeTable() {
             <th>Quaest (03/Out)<br><small style="font-weight: normal; font-size: 0.72rem; color: #34D399;">(Véspera / Hoje)</small></th>
             <th>Datafolha (03/Out)<br><small style="font-weight: normal; font-size: 0.72rem; color: #34D399;">(Véspera / Hoje)</small></th>
             <th>Paraná Pesq. (26/Set)<br><small style="font-weight: normal; font-size: 0.72rem; color: #FCD34D;">(Coleta 23-25/Set)</small></th>
-            <th>AtlasIntel (29/Set)<br><small style="font-weight: normal; font-size: 0.72rem; color: #94A3B8;">(Coleta 23-28/Set)</small></th>
+            <th>AtlasIntel (30/Set)<br><small style="font-weight: normal; font-size: 0.72rem; color: #60A5FA;">(Coleta 23-28/Set)</small></th>
           </tr>
         </thead>
         <tbody>
@@ -439,14 +479,14 @@ function renderComparativeTable() {
             <td><strong style="color: #34D399;">03/10 (18h)</strong></td>
             <td><strong style="color: #34D399;">03/10 (18h30)</strong></td>
             <td><strong style="color: #FCD34D;">26/09 (07h30)</strong></td>
-            <td><strong>29/09 (19h)</strong></td>
+            <td><strong style="color: #60A5FA;">30/09 (18h)</strong></td>
           </tr>
           <tr class="row-source-link">
             <td>🔗 <strong>Fonte Primária</strong></td>
             <td><a href="https://g1.globo.com/ce/ceara/" target="_blank" rel="noopener noreferrer" class="poll-source-link">G1 / TV Verdes Mares ↗</a></td>
             <td><a href="https://www1.folha.uol.com.br/" target="_blank" rel="noopener noreferrer" class="poll-source-link">Folha / TV Globo ↗</a></td>
             <td><a href="https://www.paranapesquisas.com.br" target="_blank" rel="noopener noreferrer" class="poll-source-link" style="color: #FCD34D;">Paraná Pesquisas ↗</a></td>
-            <td><a href="https://atlasintel.org" target="_blank" rel="noopener noreferrer" class="poll-source-link">AtlasIntel Oficial ↗</a></td>
+            <td><a href="https://atlasintel.org" target="_blank" rel="noopener noreferrer" class="poll-source-link">Atlas / InfoMoney ↗</a></td>
           </tr>
           <tr style="background: rgba(255, 255, 255, 0.02); font-size: 0.8rem; color: #94A3B8;">
             <td>📍 <strong>Coleta em Campo</strong></td>
@@ -476,33 +516,40 @@ function renderComparativeTable() {
             <td><strong style="color: #38BDF8;">50,8%</strong> <span class="trend-badge trend-up">▲ +1,6</span></td>
             <td>48,9% <span class="trend-badge trend-down">▼ -0,3</span></td>
           </tr>
+          <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.84rem;">
+            <td>🎯 <strong>Simulação 2º Turno</strong></td>
+            <td>Elmano 50% x Ciro 47%</td>
+            <td>Elmano 49% x Ciro 45%</td>
+            <td>Ciro 51% x Elmano 47%</td>
+            <td><strong style="color: #60A5FA;">Elmano 50,5% x Ciro 49,5%</strong></td>
+          </tr>
           <tr>
             <td><strong>Delegado Huggo (Missão)</strong></td>
             <td>1,0% <span class="trend-badge trend-equal">▪ 0,0</span></td>
             <td>2,0% <span class="trend-badge trend-up">▲ +0,5</span></td>
             <td>1,5% <span class="trend-badge trend-up">▲ +0,3</span></td>
-            <td>0,8% <span class="trend-badge trend-down">▼ -0,4</span></td>
+            <td>0,4% <span class="trend-badge trend-down">▼ -0,8</span></td>
           </tr>
           <tr>
             <td><strong>Outros Candidatos</strong></td>
             <td>0,0%</td>
             <td>1,0%</td>
             <td>1,2%</td>
-            <td>-</td>
+            <td>0,4%</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div style="font-size: 0.82rem; color: #FDE68A; margin-top: 0.85rem; background: rgba(245, 158, 11, 0.08); padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.22); line-height: 1.45;">
-      ⚠️ <strong>Nota de Transparência sobre Datas:</strong> Quaest e Datafolha realizaram pesquisas de véspera com coleta presencial em 02 e 03 de outubro. Os números da <strong>Paraná Pesquisas</strong> referem-se à coleta de 23 a 25 de setembro (publicada em 26/set); o instituto <strong>não</strong> foi a campo hoje (03/out).
+      ⚠️ <strong>Nota de Transparência sobre Datas:</strong> Quaest e Datafolha realizaram pesquisas de véspera com coleta presencial em 02 e 03 de outubro. A pesquisa da <strong>AtlasIntel</strong> foi divulgada em 30 de setembro (coleta 23 a 28/set). Os números da <strong>Paraná Pesquisas</strong> referem-se à coleta de 23 a 25 de setembro (publicada em 26/set); o instituto não foi a campo hoje (03/out).
     </div>
 
     <div class="poll-footer-info" style="margin-top: 0.75rem;">
       <span><strong>Quaest:</strong> CE-04790/2026 (±2,0%)</span>
       <span><strong>Datafolha:</strong> CE-08721/2026 (±2,0%)</span>
       <span><strong>Paraná Pesquisas:</strong> CE-03967/2026 (±2,7%)</span>
-      <span><strong>AtlasIntel:</strong> CE-01709/2026 (±2,5%)</span>
+      <span><strong>AtlasIntel:</strong> CE-01709/2026 (±2,5 a 3,0% • 1.808 eleitores)</span>
     </div>
   `;
 
@@ -524,21 +571,28 @@ async function queryGeminiAi() {
     const promptText = `
 Você é um analista político sênior especializado na cobertura das Eleições para o Governo do Estado do Ceará em 2026.
 
-DIRETRIZES CRÍTICAS DE CRONOLOGIA, DATAS E FONTES:
+DADOS OFICIAIS CAPTURADOS E REGISTRADOS NO TSE:
 1. PESQUISAS DE VÉSPERA DA ELEIÇÃO (Divulgadas hoje, 03 de Outubro de 2026):
-   - Quaest (TSE CE-04790/2026): Coleta em campo em 02 e 03/out. Votos válidos: Elmano de Freitas 50,0% x Ciro Gomes 49,0%. Fonte Primária: TV Verdes Mares / G1 Ceará.
-   - Datafolha (TSE CE-08721/2026): Coleta em campo em 02 e 03/out. Votos válidos: Elmano de Freitas 50,0% x Ciro Gomes 47,0%. Fonte Primária: Folha de S.Paulo / TV Globo.
+   - Quaest (TSE CE-04790/2026): Coleta 02-03/out. Válidos: Elmano de Freitas 50,0% x Ciro Gomes 49,0%. Fonte: TV Verdes Mares / G1 Ceará.
+   - Datafolha (TSE CE-08721/2026): Coleta 02-03/out. Válidos: Elmano de Freitas 50,0% x Ciro Gomes 47,0%. Fonte: Folha de S.Paulo / TV Globo.
 
-2. LEVANTAMENTO ANTERIOR DE SETEMBRO:
-   - Paraná Pesquisas (TSE CE-03967/2026): Coleta realizada entre 23 e 25 de Setembro de 2026, divulgada em 26 de Setembro. Cenário estimulado: Ciro Gomes 46,0% x Elmano de Freitas 42,2% (válidos projetados: Ciro 50,8% x Elmano 46,5%).
-   - ATENÇÃO MÁXIMA: A Paraná Pesquisas NÃO realizou pesquisa de campo hoje (03/out). Os dados são da rodada anterior de setembro. Você DEVE alertar explicitamente essa diferença temporal para que o leitor não confunda com pesquisa de véspera de hoje! Fonte Primária: Portal Paraná Pesquisas / Gazeta do Povo.
-   - AtlasIntel (TSE CE-01709/2026): Coleta de 23 a 28 de setembro, divulgada em 29/09. Válidos: Elmano 50,3% x Ciro 48,9%. Fonte Primária: AtlasIntel Oficial.
+2. PESQUISA ATLASINTEL (Capturada • Divulgada em 30 de Setembro de 2026):
+   - Registro TSE: CE-01709/2026 • Amostra: 1.808 eleitores • Coleta: 23 a 28 de Setembro.
+   - Votos Válidos 1º Turno: Elmano de Freitas 50,3% x Ciro Gomes 48,9% x Delegado Huggo 0,4%.
+   - Cenário Estimulado (Votos Totais): Elmano 49,0% x Ciro Gomes 47,6% (Brancos/Nulos 1,8%, Indecisos 1,2%).
+   - Simulação 2º Turno: Elmano de Freitas 50,5% x Ciro Gomes 49,5% (empate técnico rigoroso).
+   - Contratante: Focus Comunicação / Divulgação: InfoMoney / Estadão / Poder360.
+   - Fonte Primária: AtlasIntel Oficial.
+
+3. PARANÁ PESQUISAS (Levantamento de 26 de Setembro de 2026):
+   - Registro TSE: CE-03967/2026 • Coleta: 23 a 25/set. Estimulada: Ciro 46,0% x Elmano 42,2% (Válidos: 50,8% x 46,5%).
+   - A Paraná Pesquisas NÃO realizou coleta hoje (03/out).
 
 ESTRUTURA DA RESPOSTA REQUERIDA:
-- Esclareça no início a diferença entre as pesquisas de véspera (hoje) e as pesquisas anteriores de setembro.
-- Apresente os números de cada instituto com seus respectivos registros no TSE, margens de erro e período de coleta.
-- CITE OBRIGATORIAMENTE A FONTE PRIMÁRIA OFICIAL DE CADA PESQUISA.
-- Analise o quadro de empate técnico entre Elmano de Freitas e Ciro Gomes.
+- Confirme a captura e detalhamento integral da pesquisa da AtlasIntel (com votos válidos de 1º turno, estimulada geral e projeção de 2º turno).
+- Diferencie as pesquisas de véspera de hoje (Quaest e Datafolha) das pesquisas de fim de setembro (AtlasIntel e Paraná Pesquisas).
+- CITE OBRIGATORIAMENTE AS FONTES PRIMÁRIAS OFICIAIS DE CADA INSTITUTO.
+- Analise a disputa acirrada entre Elmano de Freitas e Ciro Gomes.
     `.trim();
 
     const requestPayload = {
@@ -620,38 +674,42 @@ function updateHomeScreen(sourceText = '') {
 // Síntese jornalística analítica gerada quando os servidores do Gemini estiverem em sobrecarga
 function renderFallbackAiAnalysis() {
   const fallbackAnalysis = `
-### 📊 Análise Oficial Consolidada • Pesquisas Eleitorais Ceará 2026
+### 📊 Boletim Consolidado de Pesquisas Eleitorais • Governo do Ceará 2026
 
-> ⚠️ **Esclarecimento Cronológico Importante sobre as Coletas:**
+> ⚡ **Status das Coletas e Cronologia Oficial:**
 > - **Pesquisas de Véspera (Hoje, 03/10):** Realizadas ontem e hoje (02 e 03/out) por **Quaest** e **Datafolha**.
-> - **Levantamento Anterior (Setembro):** Os números da **Paraná Pesquisas** correspondem à pesquisa realizada de 23 a 25 de setembro (divulgada em 26/set). A Paraná Pesquisas **NÃO realizou coleta de campo hoje (03/out)**. A **AtlasIntel** realizou coleta de 23 a 28 de setembro (divulgada em 29/set).
+> - **Pesquisa AtlasIntel (Capturada • Divulgada em 30/09):** Coleta entre 23 e 28 de setembro (1.808 eleitores, registro TSE CE-01709/2026). Apresenta votos válidos, votos totais e simulação de 2º turno.
+> - **Paraná Pesquisas (Divulgada em 26/09):** Coleta entre 23 e 25 de setembro. *Não houve coleta em campo hoje (03/out).*
 
 ---
 
-#### 1. Quaest Pesquisa (Levantamento de Véspera • Hoje, 03/10)
+#### 1. AtlasIntel (Capturada com Sucesso • Divulgada em 30/Set)
+- **Votos Válidos (1º Turno):** **Elmano de Freitas (PT): 50,3%** | **Ciro Gomes (PSDB): 48,9%** | Delegado Huggo (Missão): 0,4% | Outros: 0,4%
+- **Cenário Estimulado (Votos Totais):** **Elmano: 49,0%** | **Ciro Gomes: 47,6%** | Brancos/Nulos: 1,8% | Indecisos: 1,2%
+- **Simulação de 2º Turno Direto:** **Elmano de Freitas: 50,5%** x **Ciro Gomes: 49,5%** (empate técnico rigoroso)
+- **Registro TSE:** CE-01709/2026 • Margem de erro: ±2,5 a 3,0 p.p. • Amostra: 1.808 eleitores (metodologia RDR)
+- **Contratante:** Focus Comunicação e Mídia Ltda. • **Divulgação:** InfoMoney / Estadão / Poder360
+- **Fonte Primária Oficial:** [AtlasIntel Oficial ↗](https://atlasintel.org) / [InfoMoney ↗](https://www.infomoney.com.br)
+
+#### 2. Quaest Pesquisa (Levantamento de Véspera • Hoje, 03/10)
 - **Votos Válidos:** **Elmano de Freitas (PT): 50,0%** | **Ciro Gomes (PSDB): 49,0%** | Delegado Huggo (Missão): 1,0%
 - **Registro TSE:** CE-04790/2026 • Margem de erro: ±2,0 p.p. • Coleta de campo: 02 e 03 de Outubro de 2026
-- **Fonte Primária:** [TV Verdes Mares / G1 Ceará ↗](https://g1.globo.com/ce/ceara/)
+- **Fonte Primária Oficial:** [TV Verdes Mares / G1 Ceará ↗](https://g1.globo.com/ce/ceara/)
 
-#### 2. Datafolha (Levantamento de Véspera • Hoje, 03/10)
+#### 3. Datafolha (Levantamento de Véspera • Hoje, 03/10)
 - **Votos Válidos:** **Elmano de Freitas (PT): 50,0%** | **Ciro Gomes (PSDB): 47,0%** | Delegado Huggo (Missão): 2,0%
 - **Registro TSE:** CE-08721/2026 • Margem de erro: ±2,0 p.p. • Coleta de campo: 02 e 03 de Outubro de 2026
-- **Fonte Primária:** [Folha de S.Paulo / TV Globo ↗](https://www1.folha.uol.com.br/)
+- **Fonte Primária Oficial:** [Folha de S.Paulo / TV Globo ↗](https://www1.folha.uol.com.br/)
 
-#### 3. Paraná Pesquisas (Última Rodada • Divulgada em 26/Set)
+#### 4. Paraná Pesquisas (Última Rodada • Divulgada em 26/Set)
 - **Cenário Estimulado:** **Ciro Gomes (PSDB): 46,0%** | **Elmano de Freitas (PT): 42,2%** | Brancos/Nulos: 4,9% | Indecisos: 4,5%
 - **Votos Válidos Projetados:** Ciro Gomes: 50,8% | Elmano de Freitas: 46,5%
-- **Registro TSE:** CE-03967/2026 • Margem de erro: ±2,7 p.p. • **Coleta de campo: 23 a 25 de Setembro de 2026**
-- **Fonte Primária:** [Portal Paraná Pesquisas Oficial ↗](https://www.paranapesquisas.com.br) / [Gazeta do Povo ↗](https://www.gazetadopovo.com.br)
+- **Registro TSE:** CE-03967/2026 • Margem de erro: ±2,7 p.p. • Coleta de campo: 23 a 25 de Setembro de 2026
+- **Fonte Primária Oficial:** [Portal Paraná Pesquisas Oficial ↗](https://www.paranapesquisas.com.br) / [Gazeta do Povo ↗](https://www.gazetadopovo.com.br)
 - *Nota de Transparência: A Paraná Pesquisas não realizou nova coleta em campo na véspera (03/out).*
 
-#### 4. AtlasIntel (Última Rodada • Divulgada em 29/Set)
-- **Votos Válidos:** **Elmano de Freitas (PT): 50,3%** | **Ciro Gomes (PSDB): 48,9%** | Delegado Huggo (Missão): 0,8%
-- **Registro TSE:** CE-01709/2026 • Margem de erro: ±2,5 p.p. • Coleta de campo: 23 a 28 de Setembro de 2026
-- **Fonte Primária:** [AtlasIntel Oficial ↗](https://atlasintel.org)
-
 ---
-> 📢 **Monitoramento em Tempo Real:** Acompanhe os canais oficiais do X/Twitter [@pesquisaquaest](https://twitter.com/pesquisaquaest), [@folha](https://twitter.com/folha), [@P_Pesquisas](https://twitter.com/P_Pesquisas) e [@atlasintel](https://twitter.com/atlasintel) para desdobramentos e eventuais novas divulgações.
+> 📢 **Monitoramento Contínuo:** Acompanhe nos canais oficiais do X/Twitter [@atlasintel](https://twitter.com/atlasintel), [@pesquisaquaest](https://twitter.com/pesquisaquaest), [@folha](https://twitter.com/folha) e [@P_Pesquisas](https://twitter.com/P_Pesquisas) para os últimos desdobramentos.
   `;
 
   aiContent.innerHTML = formatMarkdown(fallbackAnalysis);
