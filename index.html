@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesquisas Governo do Ceará | Resultados Oficiais e IA</title>
-  <meta name="description" content="Resultados consolidados e atualizados das pesquisas eleitorais para o Governo do Estado do Ceará (Quaest, Paraná Pesquisas e registro TSE).">
+  <title>Pesquisas Ceará 2026 | Quaest, Paraná Pesquisas e AtlasIntel</title>
+  <meta name="description" content="Resultados atualizados das pesquisas eleitorais para o Governo do Estado do Ceará (Quaest, Paraná Pesquisas, AtlasIntel e redes sociais oficiais).">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
@@ -21,29 +21,32 @@
           <span>Pesquisas Eleitorais • Ceará</span>
         </div>
         <h1 class="main-title">Resultados de Pesquisas <span>Governo do Ceará</span></h1>
-        <p class="main-subtitle">Números dos institutos registrados no Tribunal Superior Eleitoral (TSE) e monitoramento contínuo via IA.</p>
+        <p class="main-subtitle">Acompanhamento contínuo dos levantamentos de <strong>Quaest, Paraná Pesquisas e AtlasIntel</strong> registrados no TSE e nas redes oficiais.</p>
       </div>
       <div class="header-right">
-        <button id="btnRefresh" class="btn-refresh" type="button" title="Consultar novos resultados via IA">
+        <button id="btnRefresh" class="btn-refresh" type="button" title="Consultar atualizações nos institutos e redes">
           <span class="refresh-icon" id="refreshIcon">🔄</span>
-          <span id="refreshText">Atualizar via IA</span>
+          <span id="refreshText">Consultar Redes & IA</span>
         </button>
       </div>
     </header>
 
-    <!-- Filtros de Visualização -->
+    <!-- Filtros por Instituto -->
     <nav class="filter-tabs" id="filterTabs">
       <button type="button" class="tab-btn active" data-tab="todas">
-        📊 Todas as Pesquisas
+        📊 Visão Geral
       </button>
       <button type="button" class="tab-btn" data-tab="quaest">
-        🔹 Pesquisa Quaest (03/Out)
+        🔹 Quaest (03/Out)
       </button>
       <button type="button" class="tab-btn" data-tab="parana">
         🔸 Paraná Pesquisas
       </button>
-      <button type="button" class="tab-btn" data-tab="comparativo">
-        ⚖️ Comparativo Geral
+      <button type="button" class="tab-btn" data-tab="atlas">
+        🟢 AtlasIntel
+      </button>
+      <button type="button" class="tab-btn" data-tab="redes">
+        🌐 Redes & Fontes Oficiais
       </button>
     </nav>
 
@@ -51,16 +54,16 @@
     <div class="status-bar" id="statusBar">
       <div class="status-left">
         <span class="status-bullet" id="statusBullet"></span>
-        <span id="statusMessage">Dados oficiais carregados com sucesso</span>
+        <span id="statusMessage">Dados oficiais carregados (Quaest, Paraná Pesquisas e AtlasIntel)</span>
       </div>
       <span class="status-time" id="lastUpdatedTime">Atualizado em 03/10/2026</span>
     </div>
 
-    <!-- Mensagem de Aviso (quando houver limite de cota da API, sem quebrar a tela) -->
+    <!-- Mensagem de Aviso Dinâmica -->
     <div class="alert-box" id="apiAlertBox" style="display: none;">
       <span class="alert-icon">ℹ️</span>
       <div class="alert-text">
-        <strong>Aviso da IA:</strong> <span id="apiAlertMsg">A cota gratuita da chave no Google AI Studio está temporariamente esgotada (Rate Limit 429). Exibindo os números consolidados mais recentes registrados no TSE.</span>
+        <span id="apiAlertMsg"></span>
       </div>
       <button class="alert-close" id="closeAlertBtn" type="button">×</button>
     </div>
@@ -70,54 +73,62 @@
       <!-- Container das pesquisas renderizado pelo JS -->
       <div id="pollsContainer" class="polls-grid"></div>
 
-      <!-- Resumo Detalhado da IA (quando atualizado via Gemini) -->
+      <!-- Resumo da IA com varredura nas redes sociais -->
       <section class="ai-summary-card" id="aiSummarySection" style="display: none;">
         <div class="ai-header">
-          <h3>🤖 Análise em Tempo Real (Gemini IA + Google Search)</h3>
-          <span class="ai-badge">Busca na Web</span>
+          <h3>🤖 Monitoramento em Tempo Real (Gemini IA + Busca na Web)</h3>
+          <span class="ai-badge">Web & Redes Sociais</span>
         </div>
         <div class="ai-content" id="aiContent"></div>
       </section>
 
-      <!-- Fontes Oficiais -->
-      <section class="sources-card">
-        <h4 class="sources-title">🌐 Registros Oficiais e Fontes Consultadas:</h4>
-        <ul class="sources-list" id="sourcesList">
-          <li>
-            <a href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener noreferrer">
-              🏛️ <strong>TSE (PesqEle):</strong> Registros CE-04790/2026 e CE-03967/2026
-            </a>
-          </li>
-          <li>
-            <a href="https://g1.globo.com/ce/ceara/" target="_blank" rel="noopener noreferrer">
-              📰 <strong>G1 Ceará:</strong> Cobertura e divulgação de pesquisas Quaest
-            </a>
-          </li>
-          <li>
-            <a href="https://diariodonordeste.verdesmares.com.br/politica" target="_blank" rel="noopener noreferrer">
-              📰 <strong>Diário do Nordeste:</strong> Levantamentos e intenção de voto no Ceará
-            </a>
-          </li>
-          <li>
-            <a href="https://www.opovo.com.br/politica" target="_blank" rel="noopener noreferrer">
-              📰 <strong>O Povo:</strong> Acompanhamento eleitoral e institutos de pesquisa
-            </a>
-          </li>
-        </ul>
+      <!-- Painel de Redes Oficiais -->
+      <section class="socials-card" id="socialsPanel">
+        <h4 class="sources-title">📱 Redes Sociais & Canais Oficiais dos Institutos:</h4>
+        <div class="social-grid">
+          <div class="social-card">
+            <div class="social-card-title">🔹 Quaest Pesquisa</div>
+            <p class="social-card-desc">Divulgações de véspera, gráficos de votos válidos e aprovação estadual.</p>
+            <div class="social-links">
+              <a href="https://twitter.com/pesquisaquaest" target="_blank" rel="noopener noreferrer">𝕏 @pesquisaquaest</a>
+              <a href="https://www.instagram.com/quaestpesquisa" target="_blank" rel="noopener noreferrer">📷 @quaestpesquisa</a>
+            </div>
+          </div>
+
+          <div class="social-card">
+            <div class="social-card-title">🔸 Paraná Pesquisas</div>
+            <p class="social-card-desc">Cenários estimulado, espontâneo, rejeição e disputa pelo Senado.</p>
+            <div class="social-links">
+              <a href="https://www.paranapesquisas.com.br" target="_blank" rel="noopener noreferrer">🌐 Site Oficial</a>
+              <a href="https://twitter.com/P_Pesquisas" target="_blank" rel="noopener noreferrer">𝕏 @P_Pesquisas</a>
+            </div>
+          </div>
+
+          <div class="social-card">
+            <div class="social-card-title">🟢 AtlasIntel</div>
+            <p class="social-card-desc">Levantamentos online, metodologia RDR e recortes demográficos.</p>
+            <div class="social-links">
+              <a href="https://atlasintel.org" target="_blank" rel="noopener noreferrer">🌐 Site Oficial</a>
+              <a href="https://twitter.com/atlasintel" target="_blank" rel="noopener noreferrer">𝕏 @atlasintel</a>
+              <a href="https://www.instagram.com/atlasintel" target="_blank" rel="noopener noreferrer">📷 @atlasintel</a>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
-    <!-- Rodapé com Configuração Discreta -->
+    <!-- Rodapé -->
     <footer class="footer-simple">
-      <p>Dados compilados a partir de pesquisas registradas no Tribunal Superior Eleitoral (TSE).</p>
+      <p>Dados consolidados com base em registros do TSE (PesqEle) e divulgações oficiais dos institutos.</p>
       <div class="footer-key-toggle">
         <button id="btnToggleKeyConfig" class="link-discrete" type="button">
-          ⚙️ Configurar chave da API Gemini
+          ⚙️ Opções de Chave Gemini
         </button>
       </div>
       <div id="keyConfigBox" class="key-config-box" style="display: none;">
-        <input type="password" id="customApiKeyInput" placeholder="Cole uma nova Gemini API Key se desejar..." spellcheck="false">
+        <input type="password" id="customApiKeyInput" placeholder="Inserir outra chave se desejar..." spellcheck="false">
         <button id="btnSaveCustomKey" type="button" class="btn-save-key">Salvar</button>
+        <button id="btnResetKey" type="button" class="btn-reset-key" title="Restaurar chave padrão">Restaurar</button>
       </div>
     </footer>
   </div>

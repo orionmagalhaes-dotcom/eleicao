@@ -1,9 +1,9 @@
-// Dados Oficiais Estruturados das Pesquisas para o Governo do Estado do Ceará
+// Dados Oficiais Estruturados das Pesquisas - Governo do Estado do Ceará
 const POLLS_DATA = [
   {
     id: 'quaest',
     institute: 'Quaest Pesquisa',
-    type: 'Votos Válidos (1º Turno)',
+    type: 'Votos Válidos (1º Turno) • Véspera',
     date: '03 de Outubro de 2026',
     fieldPeriod: '02 e 03 de Outubro de 2026',
     tseReg: 'CE-04790/2026',
@@ -16,7 +16,11 @@ const POLLS_DATA = [
       { name: 'Delegado Huggo', party: 'Missão', pct: 1.0, barClass: 'bar-missao' },
       { name: 'Outros Candidatos', party: 'Diversos', pct: 0.0, barClass: 'bar-outros' }
     ],
-    note: 'Empate técnico no limite da margem de erro entre Elmano de Freitas e Ciro Gomes.'
+    note: 'Empate técnico rigoroso na margem de erro entre Elmano de Freitas e Ciro Gomes.',
+    socials: [
+      { label: '𝕏 @pesquisaquaest', url: 'https://twitter.com/pesquisaquaest' },
+      { label: '📷 @quaestpesquisa', url: 'https://www.instagram.com/quaestpesquisa' }
+    ]
   },
   {
     id: 'parana',
@@ -36,16 +40,58 @@ const POLLS_DATA = [
       { name: 'Delegado Huggo', party: 'Missão', pct: 1.1, barClass: 'bar-missao' },
       { name: 'Outros (Zé Batista, Vera Lúcia, etc.)', party: 'Diversos', pct: 0.9, barClass: 'bar-outros' }
     ],
-    note: 'Cenário estimulado com liderança numérica de Ciro Gomes, configurando empate técnico no limite da margem.'
+    note: 'Cenário estimulado com liderança numérica de Ciro Gomes dentro da margem de erro.',
+    socials: [
+      { label: '🌐 paranapesquisas.com.br', url: 'https://www.paranapesquisas.com.br' },
+      { label: '𝕏 @P_Pesquisas', url: 'https://twitter.com/P_Pesquisas' }
+    ]
+  },
+  {
+    id: 'atlas',
+    institute: 'AtlasIntel',
+    type: 'Votos Válidos (1º Turno) • Levantamento RDR',
+    date: 'Final de Setembro de 2026',
+    fieldPeriod: '23 a 28 de Setembro de 2026',
+    tseReg: 'CE-01709/2026',
+    sample: '1.600 eleitores',
+    marginError: '± 2,5 pontos percentuais',
+    confidence: '95%',
+    candidates: [
+      { name: 'Elmano de Freitas', party: 'PT', pct: 50.3, barClass: 'bar-pt' },
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 48.9, barClass: 'bar-psdb' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 0.8, barClass: 'bar-missao' }
+    ],
+    note: 'Empate técnico na primeira posição. No 2º turno simulado: Elmano 50,5% x Ciro Gomes 49,5%.',
+    socials: [
+      { label: '🌐 atlasintel.org', url: 'https://atlasintel.org' },
+      { label: '𝕏 @atlasintel', url: 'https://twitter.com/atlasintel' },
+      { label: '📷 @atlasintel', url: 'https://www.instagram.com/atlasintel' }
+    ]
   }
 ];
 
-// Gerenciamento da Chave da API
+// Chave da API e Autenticação Robusta
 const ENCODED_DEFAULT = 'QVEuQWI4Uk42SS1HdTJZbWpzbmlwZlpaRnFvOGU0QmR0MDhqNmhpQUdnc1JEaWk2TWdSN3c=';
+
 function getApiKey() {
+  // 1. Tenta parâmetro na URL (?key=... ou #key=...)
   const urlParams = new URLSearchParams(window.location.search);
-  const hashKey = window.location.hash ? window.location.hash.replace('#key=', '') : null;
-  return urlParams.get('key') || hashKey || localStorage.getItem('gemini_api_key_custom') || atob(ENCODED_DEFAULT);
+  const paramKey = (urlParams.get('key') || '').trim();
+  if (paramKey && paramKey.length > 20) return paramKey;
+
+  const hashKey = (window.location.hash ? window.location.hash.replace('#key=', '') : '').trim();
+  if (hashKey && hashKey.length > 20) return hashKey;
+
+  // 2. Tenta chave personalizada salva pelo usuário
+  const custom = (localStorage.getItem('gemini_api_key_custom') || '').trim();
+  if (custom && custom.length > 20) return custom;
+
+  // 3. Fallback na chave padrão
+  try {
+    return atob(ENCODED_DEFAULT).trim();
+  } catch {
+    return '';
+  }
 }
 
 // Elementos da Interface
@@ -66,6 +112,8 @@ const btnToggleKeyConfig = document.getElementById('btnToggleKeyConfig');
 const keyConfigBox = document.getElementById('keyConfigBox');
 const customApiKeyInput = document.getElementById('customApiKeyInput');
 const btnSaveCustomKey = document.getElementById('btnSaveCustomKey');
+const btnResetKey = document.getElementById('btnResetKey');
+const socialsPanel = document.getElementById('socialsPanel');
 
 let currentTab = 'todas';
 let isQuerying = false;
@@ -90,7 +138,7 @@ function setupEvents() {
     renderPolls(currentTab);
   });
 
-  // Botão Atualizar via IA
+  // Botão Atualizar
   btnRefresh.addEventListener('click', () => {
     queryGeminiAi();
   });
@@ -100,7 +148,7 @@ function setupEvents() {
     apiAlertBox.style.display = 'none';
   });
 
-  // Toggle do menu discreto de chave
+  // Toggle do menu de chave
   btnToggleKeyConfig.addEventListener('click', () => {
     const isHidden = keyConfigBox.style.display === 'none';
     keyConfigBox.style.display = isHidden ? 'flex' : 'none';
@@ -113,19 +161,30 @@ function setupEvents() {
   // Salvar nova chave customizada
   btnSaveCustomKey.addEventListener('click', () => {
     const key = customApiKeyInput.value.trim();
-    if (key) {
+    if (key && key.length > 20) {
       localStorage.setItem('gemini_api_key_custom', key);
-      alert('Nova chave salva no navegador! Tentando atualizar via IA...');
+      showAlert('Nova chave de API configurada! Consultando...', 'info');
       queryGeminiAi();
+    } else {
+      showAlert('Por favor, informe uma chave válida com mais de 20 caracteres.', 'warning');
     }
+  });
+
+  // Restaurar chave padrão
+  btnResetKey.addEventListener('click', () => {
+    localStorage.removeItem('gemini_api_key_custom');
+    customApiKeyInput.value = '';
+    showAlert('Chave padrão restaurada!', 'info');
+    queryGeminiAi();
   });
 }
 
-// Renderiza os cards das pesquisas
+// Renderiza cards ou visualização específica
 function renderPolls(tab) {
   pollsContainer.innerHTML = '';
 
-  if (tab === 'comparativo') {
+  if (tab === 'redes') {
+    socialsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     renderComparativeTable();
     return;
   }
@@ -152,6 +211,12 @@ function renderPolls(tab) {
       </div>
     `).join('');
 
+    const socialLinksHtml = poll.socials ? `
+      <div style="margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+        ${poll.socials.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; color: #93C5FD; text-decoration: none; background: rgba(59,130,246,0.1); padding: 0.2rem 0.55rem; border-radius: 999px;">${s.label}</a>`).join('')}
+      </div>
+    ` : '';
+
     card.innerHTML = `
       <div class="poll-header">
         <div>
@@ -174,13 +239,18 @@ function renderPolls(tab) {
         <span>📅 <strong>Campo:</strong> ${escapeHTML(poll.fieldPeriod)}</span>
       </div>
       ${poll.note ? `<div style="font-size: 0.8rem; color: #94A3B8; margin-top: 0.75rem; font-style: italic;">* ${escapeHTML(poll.note)}</div>` : ''}
+      ${socialLinksHtml}
     `;
 
     pollsContainer.appendChild(card);
   });
+
+  if (tab === 'todas') {
+    renderComparativeTable();
+  }
 }
 
-// Tabela comparativa entre institutos
+// Tabela comparativa geral
 function renderComparativeTable() {
   const card = document.createElement('article');
   card.className = 'poll-card';
@@ -188,11 +258,11 @@ function renderComparativeTable() {
   card.innerHTML = `
     <div class="poll-header">
       <div>
-        <h2 class="poll-institute">Comparativo de Resultados • Governo do Ceará</h2>
-        <span class="poll-tag">Quaest vs Paraná Pesquisas</span>
+        <h2 class="poll-institute">Comparativo de Resultados no Ceará</h2>
+        <span class="poll-tag">Quaest vs Paraná Pesquisas vs AtlasIntel</span>
       </div>
       <div class="poll-meta">
-        <span class="poll-badge-tse">Dados Oficiais TSE</span>
+        <span class="poll-badge-tse">Registros Oficiais TSE</span>
       </div>
     </div>
 
@@ -200,9 +270,10 @@ function renderComparativeTable() {
       <table class="comparativo-table">
         <thead>
           <tr>
-            <th>Candidato / Opção</th>
+            <th>Candidato</th>
             <th>Quaest (03/Out - Válidos)</th>
-            <th>Paraná Pesquisas (Set - Estimulado)</th>
+            <th>Paraná Pesquisas (Estimulado)</th>
+            <th>AtlasIntel (Válidos)</th>
           </tr>
         </thead>
         <tbody>
@@ -210,52 +281,53 @@ function renderComparativeTable() {
             <td><strong>Elmano de Freitas (PT)</strong></td>
             <td><strong style="color: #EF4444;">50,0%</strong></td>
             <td>42,2%</td>
+            <td><strong style="color: #EF4444;">50,3%</strong></td>
           </tr>
           <tr>
             <td><strong>Ciro Gomes (PSDB)</strong></td>
             <td><strong style="color: #38BDF8;">49,0%</strong></td>
-            <td>46,0%</td>
+            <td><strong style="color: #38BDF8;">46,0%</strong></td>
+            <td>48,9%</td>
           </tr>
           <tr>
             <td><strong>Delegado Huggo (Missão)</strong></td>
             <td>1,0%</td>
             <td>1,1%</td>
+            <td>0,8%</td>
           </tr>
           <tr>
             <td><strong>Brancos / Nulos / Nenhum</strong></td>
-            <td>- (Votos válidos)</td>
+            <td>-</td>
             <td>4,9%</td>
+            <td>-</td>
           </tr>
           <tr>
             <td><strong>Não sabe / Indeciso</strong></td>
-            <td>- (Votos válidos)</td>
+            <td>-</td>
             <td>4,5%</td>
-          </tr>
-          <tr>
-            <td><strong>Outros candidatos somados</strong></td>
-            <td>0,0%</td>
-            <td>0,9%</td>
+            <td>-</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="poll-footer-info">
-      <span><strong>Registro Quaest:</strong> CE-04790/2026 (Margem ±2,0%)</span>
-      <span><strong>Registro Paraná Pesquisas:</strong> CE-03967/2026 (Margem ±2,7%)</span>
+      <span><strong>Quaest:</strong> CE-04790/2026 (±2,0%)</span>
+      <span><strong>Paraná Pesquisas:</strong> CE-03967/2026 (±2,7%)</span>
+      <span><strong>AtlasIntel:</strong> CE-01709/2026 (±2,5%)</span>
     </div>
   `;
 
   pollsContainer.appendChild(card);
 }
 
-// Consulta em tempo real à API do Gemini
+// Consulta em tempo real à API do Gemini com busca na web e redes
 async function queryGeminiAi() {
   if (isQuerying) return;
 
   const apiKey = getApiKey();
   if (!apiKey) {
-    showAlert('Chave de API não informada. Clique no rodapé para configurar.');
+    showAlert('Chave de API não localizada. Insira uma chave válida no rodapé.', 'warning');
     return;
   }
 
@@ -263,18 +335,20 @@ async function queryGeminiAi() {
   setLoadingState(true);
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+    // Envia chave APENAS via query parameter para compatibilidade total com CORS
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
 
     const promptText = `
-Quais são os resultados mais recentes das pesquisas de intenção de voto para o Governo do Estado do Ceará em 2026?
-Cite especificamente os percentuais dos candidatos (Elmano de Freitas, Ciro Gomes, Delegado Huggo, etc.), os números de registro no TSE e os institutos (Quaest, Paraná Pesquisas).
-Seja conciso, direto e objetivo.
+Busque nos portais de notícias e nas redes sociais oficiais da Paraná Pesquisas (@P_Pesquisas), Quaest (@quaestpesquisa) e AtlasIntel (@atlasintel) os resultados mais recentes de pesquisas eleitorais para o Governo do Estado do Ceará em 2026.
+Informe se saiu alguma pesquisa hoje (03 de outubro de 2026).
+Detalhe os percentuais de Elmano de Freitas, Ciro Gomes e demais concorrentes, além dos números de registro no TSE (PesqEle).
+Seja objetivo, claro e cite as fontes encontradas.
     `.trim();
 
     const requestPayload = {
       contents: [{ role: 'user', parts: [{ text: promptText }] }],
       systemInstruction: {
-        parts: [{ text: "Você é um assistente de jornalismo eleitoral. Apresente os dados das pesquisas para o governo do Ceará com objetividade e clareza." }]
+        parts: [{ text: "Você é um assistente especializado em jornalismo político e monitoramento eleitoral do Ceará. Use a busca do Google para consultar as divulgações da Quaest, Paraná Pesquisas, AtlasIntel e redes sociais oficiais." }]
       },
       tools: [{ googleSearch: {} }]
     };
@@ -282,26 +356,30 @@ Seja conciso, direto e objetivo.
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestPayload)
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Remove chave customizada com falha e notifica
+        localStorage.removeItem('gemini_api_key_custom');
+        throw new Error('Chave de API não autorizada (401). Restaurando chave padrão. Clique em atualizar novamente.');
+      }
       if (response.status === 429) {
-        throw new Error('A cota gratuita da chave no Google AI Studio está temporariamente esgotada (Rate Limit 429). Exibindo os números consolidados mais recentes registrados no TSE.');
+        throw new Error('A cota de consultas gratuitas no Google AI Studio está temporariamente esgotada (429). Exibindo os números consolidados mais recentes registrados no TSE.');
       }
       throw new Error(`Serviço temporariamente indisponível (${response.status})`);
     }
 
     const data = await response.json();
     handleAiResponse(data);
-    setStatus('Pesquisas sincronizadas via IA', 'normal');
+    setStatus('Sincronizado com sucesso via Gemini IA', 'normal');
     apiAlertBox.style.display = 'none';
   } catch (err) {
     console.warn('Consulta IA:', err.message);
-    showAlert(err.message);
+    showAlert(err.message, 'warning');
     setStatus('Exibindo dados oficiais consolidados', 'normal');
   } finally {
     isQuerying = false;
@@ -326,19 +404,28 @@ function handleAiResponse(data) {
   }
 }
 
-function showAlert(msg) {
+function showAlert(msg, type = 'warning') {
   apiAlertMsg.textContent = msg;
   apiAlertBox.style.display = 'flex';
+  if (type === 'info') {
+    apiAlertBox.style.background = 'rgba(59, 130, 246, 0.15)';
+    apiAlertBox.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+    apiAlertBox.style.color = '#93C5FD';
+  } else {
+    apiAlertBox.style.background = 'rgba(245, 158, 11, 0.1)';
+    apiAlertBox.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+    apiAlertBox.style.color = '#FCD34D';
+  }
 }
 
 function setLoadingState(loading) {
   if (loading) {
     btnRefresh.classList.add('loading');
-    refreshText.textContent = 'Buscando...';
-    setStatus('Consultando portais via Gemini IA...', 'loading');
+    refreshText.textContent = 'Buscando Redes...';
+    setStatus('Vasculhando portais, redes e institutos na web...', 'loading');
   } else {
     btnRefresh.classList.remove('loading');
-    refreshText.textContent = 'Atualizar via IA';
+    refreshText.textContent = 'Consultar Redes & IA';
   }
 }
 
@@ -360,6 +447,7 @@ function formatMarkdown(md) {
     .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
     .replace(/^\s*[\*\-]\s+(.*$)/gim, '<li>$1</li>')
     .replace(/((?:<li>.*<\/li>\s*)+)/gim, '<ul style="margin-left: 1.2rem; margin-bottom: 0.8rem;">$1</ul>')
+    .replace(/\[(.*?)\]\((https?:\/\/[^\s]+)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#60A5FA;text-decoration:underline;">$1</a>')
     .replace(/\n\n/g, '<br><br>');
 }
 
