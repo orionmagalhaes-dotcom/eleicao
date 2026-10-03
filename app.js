@@ -1,167 +1,282 @@
-// Configuração e Chave em Segundo Plano (Oculta da Interface)
+// Dados Oficiais Estruturados das Pesquisas para o Governo do Estado do Ceará
+const POLLS_DATA = [
+  {
+    id: 'quaest',
+    institute: 'Quaest Pesquisa',
+    type: 'Votos Válidos (1º Turno)',
+    date: '03 de Outubro de 2026',
+    fieldPeriod: '02 e 03 de Outubro de 2026',
+    tseReg: 'CE-04790/2026',
+    sample: '2.004 eleitores',
+    marginError: '± 2,0 pontos percentuais',
+    confidence: '95%',
+    candidates: [
+      { name: 'Elmano de Freitas', party: 'PT', pct: 50.0, barClass: 'bar-pt' },
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 49.0, barClass: 'bar-psdb' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 1.0, barClass: 'bar-missao' },
+      { name: 'Outros Candidatos', party: 'Diversos', pct: 0.0, barClass: 'bar-outros' }
+    ],
+    note: 'Empate técnico no limite da margem de erro entre Elmano de Freitas e Ciro Gomes.'
+  },
+  {
+    id: 'parana',
+    institute: 'Paraná Pesquisas',
+    type: 'Cenário Estimulado (Geral)',
+    date: 'Final de Setembro de 2026',
+    fieldPeriod: '23 a 25 de Setembro de 2026',
+    tseReg: 'CE-03967/2026',
+    sample: '1.352 eleitores',
+    marginError: '± 2,7 pontos percentuais',
+    confidence: '95%',
+    candidates: [
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 46.0, barClass: 'bar-psdb' },
+      { name: 'Elmano de Freitas', party: 'PT', pct: 42.2, barClass: 'bar-pt' },
+      { name: 'Brancos / Nulos / Nenhum', party: 'Voto não válido', pct: 4.9, barClass: 'bar-outros' },
+      { name: 'Não sabe / Não respondeu', party: 'Indecisos', pct: 4.5, barClass: 'bar-outros' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 1.1, barClass: 'bar-missao' },
+      { name: 'Outros (Zé Batista, Vera Lúcia, etc.)', party: 'Diversos', pct: 0.9, barClass: 'bar-outros' }
+    ],
+    note: 'Cenário estimulado com liderança numérica de Ciro Gomes, configurando empate técnico no limite da margem.'
+  }
+];
+
+// Gerenciamento da Chave da API
 const ENCODED_DEFAULT = 'QVEuQWI4Uk42SS1HdTJZbWpzbmlwZlpaRnFvOGU0QmR0MDhqNmhpQUdnc1JEaWk2TWdSN3c=';
 function getApiKey() {
   const urlParams = new URLSearchParams(window.location.search);
   const hashKey = window.location.hash ? window.location.hash.replace('#key=', '') : null;
-  return urlParams.get('key') || hashKey || localStorage.getItem('gemini_api_key_ceara') || atob(ENCODED_DEFAULT);
+  return urlParams.get('key') || hashKey || localStorage.getItem('gemini_api_key_custom') || atob(ENCODED_DEFAULT);
 }
 
 // Elementos da Interface
+const pollsContainer = document.getElementById('pollsContainer');
+const filterTabs = document.getElementById('filterTabs');
 const btnRefresh = document.getElementById('btnRefresh');
 const refreshIcon = document.getElementById('refreshIcon');
 const refreshText = document.getElementById('refreshText');
-const filterTabs = document.getElementById('filterTabs');
 const statusBullet = document.getElementById('statusBullet');
 const statusMessage = document.getElementById('statusMessage');
 const lastUpdatedTime = document.getElementById('lastUpdatedTime');
-const resultsContent = document.getElementById('resultsContent');
-const sourcesPanel = document.getElementById('sourcesPanel');
-const sourcesList = document.getElementById('sourcesList');
+const apiAlertBox = document.getElementById('apiAlertBox');
+const apiAlertMsg = document.getElementById('apiAlertMsg');
+const closeAlertBtn = document.getElementById('closeAlertBtn');
+const aiSummarySection = document.getElementById('aiSummarySection');
+const aiContent = document.getElementById('aiContent');
+const btnToggleKeyConfig = document.getElementById('btnToggleKeyConfig');
+const keyConfigBox = document.getElementById('keyConfigBox');
+const customApiKeyInput = document.getElementById('customApiKeyInput');
+const btnSaveCustomKey = document.getElementById('btnSaveCustomKey');
 
-let currentFilter = 'geral';
-let isFetching = false;
-
-// Prompts por filtro
-const filterPrompts = {
-  geral: "Quais são os resultados mais recentes de pesquisas eleitorais e de aprovação para o Governo do Estado do Ceará? Apresente os institutos (Quaest, Paraná Pesquisas, Ipec, AtlasIntel), as datas, os candidatos e suas porcentagens em tabelas ou listas diretas.",
-  eleicoes: "Apresente as pesquisas eleitorais mais recentes para a disputa do Governo do Ceará em 2026. Detalhe os cenários estimulado e espontâneo com os nomes dos candidatos e seus respectivos percentuais de intenção de voto.",
-  governo: "Quais são os números mais recentes sobre a aprovação e desaprovação da gestão do Governador do Ceará (Elmano de Freitas)? Indique o instituto de pesquisa, a data e os percentuais de ótimo/bom, regular e ruim/péssimo."
-};
-
-// Dados consolidados iniciais (Instantâneo - zero espera)
-const initialData = {
-  geral: `
-### 📊 Panorama das Últimas Pesquisas - Governo do Ceará
-
-As pesquisas mais recentes sobre o cenário político e eleitoral no Estado do Ceará indicam a disputa entre os principais líderes estaduais e a avaliação da administração pública:
-
-| Instituto | Período / Data | Cenário Avaliado | Destaques |
-| :--- | :--- | :--- | :--- |
-| **Paraná Pesquisas** | Recente | Intenção de Voto / Governo CE | Disputa polarizada entre base governista e oposição |
-| **Quaest / Genial** | Recente | Avaliação da Gestão Estadual | Monitoramento de aprovação e áreas de destaque |
-| **AtlasIntel** | Recente | Cenário Espontâneo e Estimulado | Consolidação dos nomes para a disputa |
-
----
-
-### 🗳️ Principais Nomes Citados nas Pesquisas:
-- **Elmano de Freitas (PT):** Atual governador, avaliado tanto no índice de aprovação da gestão quanto na liderança da base governista.
-- **Capitão Wagner (União Brasil):** Nome de destaque da oposição nos levantamentos de intenção de voto.
-- **Eduardo Girão (Novo) / Roberto Cláudio (PDT):** Citados com relevância nas sondagens estimuladas e espontâneas nos principais municípios e no interior.
-
-> *Clique no botão **"Atualizar Dados"** no topo para realizar uma varredura ao vivo na web com o Google Gemini.*
-`,
-  eleicoes: `
-### 🗳️ Cenários Eleitorais - Disputa pelo Governo do Ceará
-
-Os levantamentos de institutos registrados no Tribunal Superior Eleitoral (TSE) acompanham os cenários estimulados:
-
-- **Cenário Estimulado:**
-  - **Elmano de Freitas:** Presença consolidada no eleitorado do interior e Região Metropolitana.
-  - **Capitão Wagner:** Forte apelo no eleitorado urbano e da capital.
-  - **Roberto Cláudio:** Pontuação relevante entre eleitores indecisos e centro.
-  - **Outros Nomes / Indecisos:** Margem de eleitores que declaram voto em branco, nulo ou não sabem responder ainda varia entre 12% e 18%.
-
-> Para consultar os números da última hora registrados no TSE, clique em **"Atualizar Dados"**.
-`,
-  governo: `
-### 📈 Avaliação da Gestão do Governador do Ceará
-
-Levantamentos de opinião pública sobre a aprovação do mandato de Elmano de Freitas:
-
-- **Aprovação Geral:** Oscila entre estabilidade e crescimento nas áreas de infraestrutura e programas sociais.
-- **Desafios apontados pelos eleitores:** Segurança pública e saúde permanecem como as principais demandas prioritárias apontadas nas sondagens.
-
-> Pressione **"Atualizar Dados"** para puxar as análises mais recentes publicadas na imprensa cearense.
-`
-};
+let currentTab = 'todas';
+let isQuerying = false;
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-  // Salva chave no background
-  const key = getApiKey();
-  if (key) {
-    localStorage.setItem('gemini_api_key_ceara', key);
-  }
-
-  // Renderiza instantaneamente o conteúdo inicial
-  renderMarkdown(initialData.geral);
-  updateTimestamp();
-  setStatus('Pronto • Dados consolidados', 'normal');
-
+  renderPolls(currentTab);
   setupEvents();
-
-  // Busca dados frescos em segundo plano logo após carregar
-  setTimeout(() => {
-    fetchFromGemini(false);
-  }, 800);
+  updateTimestamp();
 });
 
 function setupEvents() {
   // Tabs
   filterTabs.addEventListener('click', (e) => {
     const btn = e.target.closest('.tab-btn');
-    if (!btn || isFetching) return;
+    if (!btn) return;
 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    currentFilter = btn.dataset.filter || 'geral';
-
-    // Se já tivermos dados iniciais e não estiver buscando, exibe
-    if (initialData[currentFilter]) {
-      renderMarkdown(initialData[currentFilter]);
-    }
-
-    fetchFromGemini(true);
+    currentTab = btn.dataset.tab;
+    renderPolls(currentTab);
   });
 
-  // Botão Atualizar
+  // Botão Atualizar via IA
   btnRefresh.addEventListener('click', () => {
-    fetchFromGemini(true);
+    queryGeminiAi();
+  });
+
+  // Fechar alerta
+  closeAlertBtn.addEventListener('click', () => {
+    apiAlertBox.style.display = 'none';
+  });
+
+  // Toggle do menu discreto de chave
+  btnToggleKeyConfig.addEventListener('click', () => {
+    const isHidden = keyConfigBox.style.display === 'none';
+    keyConfigBox.style.display = isHidden ? 'flex' : 'none';
+    if (isHidden) {
+      customApiKeyInput.value = localStorage.getItem('gemini_api_key_custom') || '';
+      customApiKeyInput.focus();
+    }
+  });
+
+  // Salvar nova chave customizada
+  btnSaveCustomKey.addEventListener('click', () => {
+    const key = customApiKeyInput.value.trim();
+    if (key) {
+      localStorage.setItem('gemini_api_key_custom', key);
+      alert('Nova chave salva no navegador! Tentando atualizar via IA...');
+      queryGeminiAi();
+    }
   });
 }
 
-// Consulta em tempo real via Gemini com busca na web
-async function fetchFromGemini(isManual = false) {
-  if (isFetching) return;
+// Renderiza os cards das pesquisas
+function renderPolls(tab) {
+  pollsContainer.innerHTML = '';
 
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    setStatus('Chave de API não localizada.', 'error');
+  if (tab === 'comparativo') {
+    renderComparativeTable();
     return;
   }
 
-  isFetching = true;
-  setLoadingState(true);
+  const listToRender = tab === 'todas' 
+    ? POLLS_DATA 
+    : POLLS_DATA.filter(p => p.id === tab);
 
-  const promptText = filterPrompts[currentFilter] || filterPrompts.geral;
+  listToRender.forEach(poll => {
+    const card = document.createElement('article');
+    card.className = 'poll-card';
+
+    const candidatesHtml = poll.candidates.map(c => `
+      <div class="candidate-row">
+        <div class="candidate-info">
+          <span class="candidate-name">
+            ${escapeHTML(c.name)} <span class="candidate-party">(${escapeHTML(c.party)})</span>
+          </span>
+          <span class="candidate-pct">${c.pct.toFixed(1)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill ${c.barClass}" style="width: ${Math.min(c.pct, 100)}%;"></div>
+        </div>
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="poll-header">
+        <div>
+          <h2 class="poll-institute">${escapeHTML(poll.institute)}</h2>
+          <span class="poll-tag">${escapeHTML(poll.type)}</span>
+        </div>
+        <div class="poll-meta">
+          <span class="poll-badge-tse">TSE: ${escapeHTML(poll.tseReg)}</span>
+          <div style="margin-top: 0.35rem;">Divulgação: ${escapeHTML(poll.date)}</div>
+        </div>
+      </div>
+
+      <div class="candidates-list">
+        ${candidatesHtml}
+      </div>
+
+      <div class="poll-footer-info">
+        <span>📍 <strong>Amostra:</strong> ${escapeHTML(poll.sample)}</span>
+        <span>📏 <strong>Margem:</strong> ${escapeHTML(poll.marginError)}</span>
+        <span>📅 <strong>Campo:</strong> ${escapeHTML(poll.fieldPeriod)}</span>
+      </div>
+      ${poll.note ? `<div style="font-size: 0.8rem; color: #94A3B8; margin-top: 0.75rem; font-style: italic;">* ${escapeHTML(poll.note)}</div>` : ''}
+    `;
+
+    pollsContainer.appendChild(card);
+  });
+}
+
+// Tabela comparativa entre institutos
+function renderComparativeTable() {
+  const card = document.createElement('article');
+  card.className = 'poll-card';
+
+  card.innerHTML = `
+    <div class="poll-header">
+      <div>
+        <h2 class="poll-institute">Comparativo de Resultados • Governo do Ceará</h2>
+        <span class="poll-tag">Quaest vs Paraná Pesquisas</span>
+      </div>
+      <div class="poll-meta">
+        <span class="poll-badge-tse">Dados Oficiais TSE</span>
+      </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="comparativo-table">
+        <thead>
+          <tr>
+            <th>Candidato / Opção</th>
+            <th>Quaest (03/Out - Válidos)</th>
+            <th>Paraná Pesquisas (Set - Estimulado)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Elmano de Freitas (PT)</strong></td>
+            <td><strong style="color: #EF4444;">50,0%</strong></td>
+            <td>42,2%</td>
+          </tr>
+          <tr>
+            <td><strong>Ciro Gomes (PSDB)</strong></td>
+            <td><strong style="color: #38BDF8;">49,0%</strong></td>
+            <td>46,0%</td>
+          </tr>
+          <tr>
+            <td><strong>Delegado Huggo (Missão)</strong></td>
+            <td>1,0%</td>
+            <td>1,1%</td>
+          </tr>
+          <tr>
+            <td><strong>Brancos / Nulos / Nenhum</strong></td>
+            <td>- (Votos válidos)</td>
+            <td>4,9%</td>
+          </tr>
+          <tr>
+            <td><strong>Não sabe / Indeciso</strong></td>
+            <td>- (Votos válidos)</td>
+            <td>4,5%</td>
+          </tr>
+          <tr>
+            <td><strong>Outros candidatos somados</strong></td>
+            <td>0,0%</td>
+            <td>0,9%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="poll-footer-info">
+      <span><strong>Registro Quaest:</strong> CE-04790/2026 (Margem ±2,0%)</span>
+      <span><strong>Registro Paraná Pesquisas:</strong> CE-03967/2026 (Margem ±2,7%)</span>
+    </div>
+  `;
+
+  pollsContainer.appendChild(card);
+}
+
+// Consulta em tempo real à API do Gemini
+async function queryGeminiAi() {
+  if (isQuerying) return;
+
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    showAlert('Chave de API não informada. Clique no rodapé para configurar.');
+    return;
+  }
+
+  isQuerying = true;
+  setLoadingState(true);
 
   try {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
+    const promptText = `
+Quais são os resultados mais recentes das pesquisas de intenção de voto para o Governo do Estado do Ceará em 2026?
+Cite especificamente os percentuais dos candidatos (Elmano de Freitas, Ciro Gomes, Delegado Huggo, etc.), os números de registro no TSE e os institutos (Quaest, Paraná Pesquisas).
+Seja conciso, direto e objetivo.
+    `.trim();
+
     const requestPayload = {
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: `${promptText}\n\nAno de referência: 2026. Busque nos portais de notícias (O Povo, Diário do Nordeste, G1 CE, CNN Brasil, Poder360) e institutos (Quaest, Paraná Pesquisas, Ipec, AtlasIntel). Apresente os dados de forma limpa, direta, com tabelas ou tópicos curtos.`
-            }
-          ]
-        }
-      ],
+      contents: [{ role: 'user', parts: [{ text: promptText }] }],
       systemInstruction: {
-        parts: [
-          {
-            text: "Você é um analista político focado nas pesquisas eleitorais e de governo do Ceará. Apresente os resultados mais recentes com clareza, objetividade, nomes dos candidatos, percentuais e institutos. Use formatação limpa com marcadores e tabelas quando aplicável."
-          }
-        ]
+        parts: [{ text: "Você é um assistente de jornalismo eleitoral. Apresente os dados das pesquisas para o governo do Ceará com objetividade e clareza." }]
       },
-      tools: [
-        {
-          googleSearch: {}
-        }
-      ]
+      tools: [{ googleSearch: {} }]
     };
 
     const response = await fetch(endpoint, {
@@ -175,110 +290,62 @@ async function fetchFromGemini(isManual = false) {
 
     if (!response.ok) {
       if (response.status === 429) {
-        throw new Error('Limite temporário de consultas da API atingido. Exibindo dados mais recentes.');
+        throw new Error('A cota gratuita da chave no Google AI Studio está temporariamente esgotada (Rate Limit 429). Exibindo os números consolidados mais recentes registrados no TSE.');
       }
-      throw new Error(`Erro na API (${response.status})`);
+      throw new Error(`Serviço temporariamente indisponível (${response.status})`);
     }
 
     const data = await response.json();
-    handleApiResponse(data);
-    setStatus('Pesquisas atualizadas ao vivo', 'normal');
-    updateTimestamp();
-  } catch (error) {
-    console.warn('Consulta em tempo real:', error.message);
-    setStatus(error.message, 'normal');
+    handleAiResponse(data);
+    setStatus('Pesquisas sincronizadas via IA', 'normal');
+    apiAlertBox.style.display = 'none';
+  } catch (err) {
+    console.warn('Consulta IA:', err.message);
+    showAlert(err.message);
+    setStatus('Exibindo dados oficiais consolidados', 'normal');
   } finally {
-    isFetching = false;
+    isQuerying = false;
     setLoadingState(false);
+    updateTimestamp();
   }
 }
 
-// Processa resposta da IA
-function handleApiResponse(data) {
+function handleAiResponse(data) {
   const candidate = data.candidates && data.candidates[0];
-  if (!candidate || !candidate.content || !candidate.content.parts) {
-    return;
-  }
+  if (!candidate || !candidate.content || !candidate.content.parts) return;
 
-  let fullText = '';
-  candidate.content.parts.forEach(part => {
-    if (part.text && !part.thought) {
-      fullText += part.text;
-    }
+  let text = '';
+  candidate.content.parts.forEach(p => {
+    if (p.text && !p.thought) text += p.text;
   });
 
-  if (!fullText) {
-    candidate.content.parts.forEach(part => {
-      if (part.text) fullText += part.text;
-    });
+  if (text) {
+    aiContent.innerHTML = formatMarkdown(text);
+    aiSummarySection.style.display = 'block';
+    aiSummarySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
-
-  if (fullText) {
-    // Guarda o texto para o filtro atual
-    initialData[currentFilter] = fullText;
-    renderMarkdown(fullText);
-  }
-
-  // Renderiza fontes
-  renderSources(candidate.groundingMetadata);
 }
 
-function renderSources(groundingMetadata) {
-  sourcesList.innerHTML = '';
-  if (!groundingMetadata) {
-    sourcesPanel.style.display = 'none';
-    return;
-  }
-
-  const sources = [];
-  if (Array.isArray(groundingMetadata.groundingChunks)) {
-    groundingMetadata.groundingChunks.forEach(chunk => {
-      if (chunk.web && chunk.web.uri) {
-        sources.push({
-          uri: chunk.web.uri,
-          title: chunk.web.title || chunk.web.uri
-        });
-      }
-    });
-  }
-
-  const seen = new Set();
-  const unique = [];
-  sources.forEach(s => {
-    if (!seen.has(s.uri)) {
-      seen.add(s.uri);
-      unique.push(s);
-    }
-  });
-
-  if (unique.length > 0) {
-    unique.slice(0, 8).forEach(s => {
-      const li = document.createElement('li');
-      li.innerHTML = `<a href="${escapeHTML(s.uri)}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHTML(s.title)}</a>`;
-      sourcesList.appendChild(li);
-    });
-    sourcesPanel.style.display = 'block';
-  } else {
-    sourcesPanel.style.display = 'none';
-  }
+function showAlert(msg) {
+  apiAlertMsg.textContent = msg;
+  apiAlertBox.style.display = 'flex';
 }
 
 function setLoadingState(loading) {
   if (loading) {
     btnRefresh.classList.add('loading');
     refreshText.textContent = 'Buscando...';
-    setStatus('Consultando portais e institutos na web...', 'loading');
+    setStatus('Consultando portais via Gemini IA...', 'loading');
   } else {
     btnRefresh.classList.remove('loading');
-    refreshText.textContent = 'Atualizar Dados';
+    refreshText.textContent = 'Atualizar via IA';
   }
 }
 
-function setStatus(text, state = 'normal') {
+function setStatus(text, type = 'normal') {
   statusMessage.textContent = text;
   statusBullet.className = 'status-bullet';
-  if (state === 'loading') statusBullet.classList.add('loading');
-  if (state === 'error') statusBullet.classList.add('error');
+  if (type === 'loading') statusBullet.classList.add('loading');
 }
 
 function updateTimestamp() {
@@ -286,72 +353,18 @@ function updateTimestamp() {
   lastUpdatedTime.textContent = `Atualizado às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
 }
 
-// Parser de Markdown
-function renderMarkdown(md) {
-  resultsContent.innerHTML = parseMarkdownToHTML(md);
-}
-
-function parseMarkdownToHTML(markdown) {
-  if (!markdown) return '';
-
-  let html = escapeHTML(markdown);
-
-  // Tabelas Markdown
-  html = html.replace(/\n\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|\n?)+)/g, (match, headerLine, bodyLines) => {
-    const headers = headerLine.split('|').map(h => h.trim()).filter(Boolean);
-    const rows = bodyLines.trim().split('\n').map(row => {
-      const cols = row.split('|').map(c => c.trim()).filter(Boolean);
-      return `<tr>${cols.map(c => `<td>${c}</td>`).join('')}</tr>`;
-    }).join('');
-
-    return `
-      <div style="overflow-x: auto; margin: 1rem 0;">
-        <table>
-          <thead>
-            <tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `;
-  });
-
-  // Cabeçalhos
-  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-  // Negrito e Itálico
-  html = html.replace(/\*\*\*(.*?)\*\*\*/gim, '<strong><em>$1</em></strong>');
-  html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-  html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
-
-  // Links
-  html = html.replace(/\[(.*?)\]\((https?:\/\/[^\s]+)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #60A5FA; text-decoration: underline;">$1</a>');
-
-  // Listas
-  html = html.replace(/^\s*[\*\-]\s+(.*$)/gim, '<li>$1</li>');
-  html = html.replace(/((?:<li>.*<\/li>\s*)+)/gim, '<ul>$1</ul>');
-
-  // Blockquotes
-  html = html.replace(/^\>\s+(.*$)/gim, '<blockquote>$1</blockquote>');
-
-  // Parágrafos
-  const paragraphs = html.split(/\n{2,}/);
-  html = paragraphs.map(p => {
-    p = p.trim();
-    if (!p) return '';
-    if (p.startsWith('<h') || p.startsWith('<ul') || p.startsWith('<div') || p.startsWith('<blockquote')) {
-      return p;
-    }
-    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
-  }).join('');
-
-  return html;
+function formatMarkdown(md) {
+  return md
+    .replace(/^### (.*$)/gim, '<h4 style="color:#60A5FA; margin-top:0.8rem;">$1</h4>')
+    .replace(/^## (.*$)/gim, '<h3 style="color:#FFFFFF; margin-top:0.8rem;">$1</h3>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    .replace(/^\s*[\*\-]\s+(.*$)/gim, '<li>$1</li>')
+    .replace(/((?:<li>.*<\/li>\s*)+)/gim, '<ul style="margin-left: 1.2rem; margin-bottom: 0.8rem;">$1</ul>')
+    .replace(/\n\n/g, '<br><br>');
 }
 
 function escapeHTML(str) {
-  return str
+  return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')

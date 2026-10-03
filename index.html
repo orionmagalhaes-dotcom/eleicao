@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesquisas Governo do Ceará | Radar em Tempo Real</title>
-  <meta name="description" content="Acompanhamento direto e objetivo das pesquisas de intenção de voto e avaliação para o Governo do Estado do Ceará.">
+  <title>Pesquisas Governo do Ceará | Resultados Oficiais e IA</title>
+  <meta name="description" content="Resultados consolidados e atualizados das pesquisas eleitorais para o Governo do Estado do Ceará (Quaest, Paraná Pesquisas e registro TSE).">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
@@ -13,34 +13,37 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Header Simples e Direto -->
+    <!-- Header -->
     <header class="header-simple">
       <div class="header-left">
         <div class="badge-live">
           <span class="pulse-dot"></span>
-          <span>Atualizado em tempo real</span>
+          <span>Pesquisas Eleitorais • Ceará</span>
         </div>
-        <h1 class="main-title">Pesquisas <span>Governo do Ceará</span></h1>
-        <p class="main-subtitle">Monitoramento contínuo em todos os institutos (Quaest, Paraná Pesquisas, Ipec, Datafolha e portais de notícias).</p>
+        <h1 class="main-title">Resultados de Pesquisas <span>Governo do Ceará</span></h1>
+        <p class="main-subtitle">Números dos institutos registrados no Tribunal Superior Eleitoral (TSE) e monitoramento contínuo via IA.</p>
       </div>
       <div class="header-right">
-        <button id="btnRefresh" class="btn-refresh" type="button" title="Consultar novos resultados na web">
+        <button id="btnRefresh" class="btn-refresh" type="button" title="Consultar novos resultados via IA">
           <span class="refresh-icon" id="refreshIcon">🔄</span>
-          <span id="refreshText">Atualizar Dados</span>
+          <span id="refreshText">Atualizar via IA</span>
         </button>
       </div>
     </header>
 
-    <!-- Barra de Filtros Simples -->
+    <!-- Filtros de Visualização -->
     <nav class="filter-tabs" id="filterTabs">
-      <button type="button" class="tab-btn active" data-filter="geral">
-        📊 Últimas Pesquisas
+      <button type="button" class="tab-btn active" data-tab="todas">
+        📊 Todas as Pesquisas
       </button>
-      <button type="button" class="tab-btn" data-filter="eleicoes">
-        🗳️ Cenário Eleitoral
+      <button type="button" class="tab-btn" data-tab="quaest">
+        🔹 Pesquisa Quaest (03/Out)
       </button>
-      <button type="button" class="tab-btn" data-filter="governo">
-        📈 Avaliação do Governo
+      <button type="button" class="tab-btn" data-tab="parana">
+        🔸 Paraná Pesquisas
+      </button>
+      <button type="button" class="tab-btn" data-tab="comparativo">
+        ⚖️ Comparativo Geral
       </button>
     </nav>
 
@@ -48,30 +51,74 @@
     <div class="status-bar" id="statusBar">
       <div class="status-left">
         <span class="status-bullet" id="statusBullet"></span>
-        <span id="statusMessage">Carregando dados mais recentes...</span>
+        <span id="statusMessage">Dados oficiais carregados com sucesso</span>
       </div>
-      <span class="status-time" id="lastUpdatedTime"></span>
+      <span class="status-time" id="lastUpdatedTime">Atualizado em 03/10/2026</span>
     </div>
 
-    <!-- Main Content Area -->
-    <main class="content-wrapper">
-      <!-- Painel de Resultados Principais -->
-      <section class="results-card" id="resultsSection">
-        <div class="results-body" id="resultsContent">
-          <!-- Renderizado dinamicamente pelo JS -->
-        </div>
+    <!-- Mensagem de Aviso (quando houver limite de cota da API, sem quebrar a tela) -->
+    <div class="alert-box" id="apiAlertBox" style="display: none;">
+      <span class="alert-icon">ℹ️</span>
+      <div class="alert-text">
+        <strong>Aviso da IA:</strong> <span id="apiAlertMsg">A cota gratuita da chave no Google AI Studio está temporariamente esgotada (Rate Limit 429). Exibindo os números consolidados mais recentes registrados no TSE.</span>
+      </div>
+      <button class="alert-close" id="closeAlertBtn" type="button">×</button>
+    </div>
 
-        <!-- Fontes e Citações Oficiais -->
-        <div class="sources-panel" id="sourcesPanel" style="display: none;">
-          <div class="sources-header">🌐 Fontes e portais consultados:</div>
-          <ul class="sources-list" id="sourcesList"></ul>
+    <!-- Área Principal de Conteúdo -->
+    <main class="content-wrapper" id="contentArea">
+      <!-- Container das pesquisas renderizado pelo JS -->
+      <div id="pollsContainer" class="polls-grid"></div>
+
+      <!-- Resumo Detalhado da IA (quando atualizado via Gemini) -->
+      <section class="ai-summary-card" id="aiSummarySection" style="display: none;">
+        <div class="ai-header">
+          <h3>🤖 Análise em Tempo Real (Gemini IA + Google Search)</h3>
+          <span class="ai-badge">Busca na Web</span>
         </div>
+        <div class="ai-content" id="aiContent"></div>
+      </section>
+
+      <!-- Fontes Oficiais -->
+      <section class="sources-card">
+        <h4 class="sources-title">🌐 Registros Oficiais e Fontes Consultadas:</h4>
+        <ul class="sources-list" id="sourcesList">
+          <li>
+            <a href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener noreferrer">
+              🏛️ <strong>TSE (PesqEle):</strong> Registros CE-04790/2026 e CE-03967/2026
+            </a>
+          </li>
+          <li>
+            <a href="https://g1.globo.com/ce/ceara/" target="_blank" rel="noopener noreferrer">
+              📰 <strong>G1 Ceará:</strong> Cobertura e divulgação de pesquisas Quaest
+            </a>
+          </li>
+          <li>
+            <a href="https://diariodonordeste.verdesmares.com.br/politica" target="_blank" rel="noopener noreferrer">
+              📰 <strong>Diário do Nordeste:</strong> Levantamentos e intenção de voto no Ceará
+            </a>
+          </li>
+          <li>
+            <a href="https://www.opovo.com.br/politica" target="_blank" rel="noopener noreferrer">
+              📰 <strong>O Povo:</strong> Acompanhamento eleitoral e institutos de pesquisa
+            </a>
+          </li>
+        </ul>
       </section>
     </main>
 
-    <!-- Rodapé Discreto -->
+    <!-- Rodapé com Configuração Discreta -->
     <footer class="footer-simple">
-      <p>Dados consolidados via Inteligência Artificial Google Gemini com verificação em portais de notícias e no TSE.</p>
+      <p>Dados compilados a partir de pesquisas registradas no Tribunal Superior Eleitoral (TSE).</p>
+      <div class="footer-key-toggle">
+        <button id="btnToggleKeyConfig" class="link-discrete" type="button">
+          ⚙️ Configurar chave da API Gemini
+        </button>
+      </div>
+      <div id="keyConfigBox" class="key-config-box" style="display: none;">
+        <input type="password" id="customApiKeyInput" placeholder="Cole uma nova Gemini API Key se desejar..." spellcheck="false">
+        <button id="btnSaveCustomKey" type="button" class="btn-save-key">Salvar</button>
+      </div>
     </footer>
   </div>
 
