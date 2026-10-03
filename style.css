@@ -315,6 +315,28 @@ body {
   font-weight: 600;
 }
 
+.poll-publish-highlight {
+  margin-top: 0.4rem;
+  font-size: 0.83rem;
+  color: #34D399;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  font-weight: 500;
+}
+
+.row-publish-date {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+}
+
+.row-publish-date td {
+  color: #F1F5F9;
+  font-size: 0.88rem;
+}
+
 /* Candidate Progress Bar Rows */
 .candidates-list {
   display: flex;

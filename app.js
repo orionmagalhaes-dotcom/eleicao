@@ -4,7 +4,8 @@ const POLLS_DATA = [
     id: 'quaest',
     institute: 'Quaest Pesquisa',
     type: 'Votos Válidos (1º Turno) • Véspera',
-    date: '03 de Outubro de 2026',
+    publishedAt: '03 de Outubro de 2026 (Hoje)',
+    publishedHour: '18h00',
     fieldPeriod: '02 e 03 de Outubro de 2026',
     tseReg: 'CE-04790/2026',
     sample: '2.004 eleitores',
@@ -26,7 +27,8 @@ const POLLS_DATA = [
     id: 'parana',
     institute: 'Paraná Pesquisas',
     type: 'Cenário Estimulado (Geral)',
-    date: 'Final de Setembro de 2026',
+    publishedAt: '27 de Setembro de 2026',
+    publishedHour: '07h30',
     fieldPeriod: '23 a 25 de Setembro de 2026',
     tseReg: 'CE-03967/2026',
     sample: '1.352 eleitores',
@@ -50,7 +52,8 @@ const POLLS_DATA = [
     id: 'atlas',
     institute: 'AtlasIntel',
     type: 'Votos Válidos (1º Turno) • Levantamento RDR',
-    date: 'Final de Setembro de 2026',
+    publishedAt: '29 de Setembro de 2026',
+    publishedHour: '19h00',
     fieldPeriod: '23 a 28 de Setembro de 2026',
     tseReg: 'CE-01709/2026',
     sample: '1.600 eleitores',
@@ -217,7 +220,7 @@ function renderPolls(tab) {
       </div>
     ` : '';
 
-    card.innerHTML = `
+      card.innerHTML = `
       <div class="poll-header">
         <div>
           <h2 class="poll-institute">${escapeHTML(poll.institute)}</h2>
@@ -225,7 +228,9 @@ function renderPolls(tab) {
         </div>
         <div class="poll-meta">
           <span class="poll-badge-tse">TSE: ${escapeHTML(poll.tseReg)}</span>
-          <div style="margin-top: 0.35rem;">Divulgação: ${escapeHTML(poll.date)}</div>
+          <div class="poll-publish-highlight">
+            📢 <strong>Publicada em:</strong> ${escapeHTML(poll.publishedAt)}${poll.publishedHour ? ` às ${escapeHTML(poll.publishedHour)}` : ''}
+          </div>
         </div>
       </div>
 
@@ -236,7 +241,7 @@ function renderPolls(tab) {
       <div class="poll-footer-info">
         <span>📍 <strong>Amostra:</strong> ${escapeHTML(poll.sample)}</span>
         <span>📏 <strong>Margem:</strong> ${escapeHTML(poll.marginError)}</span>
-        <span>📅 <strong>Campo:</strong> ${escapeHTML(poll.fieldPeriod)}</span>
+        <span>📅 <strong>Coleta em Campo:</strong> ${escapeHTML(poll.fieldPeriod)}</span>
       </div>
       ${poll.note ? `<div style="font-size: 0.8rem; color: #94A3B8; margin-top: 0.75rem; font-style: italic;">* ${escapeHTML(poll.note)}</div>` : ''}
       ${socialLinksHtml}
@@ -270,13 +275,19 @@ function renderComparativeTable() {
       <table class="comparativo-table">
         <thead>
           <tr>
-            <th>Candidato</th>
-            <th>Quaest (03/Out - Válidos)</th>
+            <th>Candidato / Indicador</th>
+            <th>Quaest (Válidos)</th>
             <th>Paraná Pesquisas (Estimulado)</th>
             <th>AtlasIntel (Válidos)</th>
           </tr>
         </thead>
         <tbody>
+          <tr class="row-publish-date">
+            <td>📅 <strong>Data de Publicação</strong></td>
+            <td><strong style="color: #34D399;">03/10/2026 (Hoje - 18h)</strong></td>
+            <td><strong>27/09/2026 (07h30)</strong></td>
+            <td><strong>29/09/2026 (19h00)</strong></td>
+          </tr>
           <tr>
             <td><strong>Elmano de Freitas (PT)</strong></td>
             <td><strong style="color: #EF4444;">50,0%</strong></td>
@@ -312,9 +323,9 @@ function renderComparativeTable() {
     </div>
 
     <div class="poll-footer-info">
-      <span><strong>Quaest:</strong> CE-04790/2026 (±2,0%)</span>
-      <span><strong>Paraná Pesquisas:</strong> CE-03967/2026 (±2,7%)</span>
-      <span><strong>AtlasIntel:</strong> CE-01709/2026 (±2,5%)</span>
+      <span><strong>Quaest:</strong> CE-04790/2026 (Publicada Hoje - 03/Out)</span>
+      <span><strong>Paraná Pesquisas:</strong> CE-03967/2026 (Publicada 27/Set)</span>
+      <span><strong>AtlasIntel:</strong> CE-01709/2026 (Publicada 29/Set)</span>
     </div>
   `;
 
