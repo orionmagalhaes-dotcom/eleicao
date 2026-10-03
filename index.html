@@ -3,160 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesquisas Ceará | Monitor Inteligente com Gemini IA</title>
-  <meta name="description" content="Site leve e objetivo para consultar em tempo real resultados de pesquisas para o Governo do Estado do Ceará utilizando a IA do Google Gemini com busca na web.">
+  <title>Pesquisas Governo do Ceará | Radar em Tempo Real</title>
+  <meta name="description" content="Acompanhamento direto e objetivo das pesquisas de intenção de voto e avaliação para o Governo do Estado do Ceará.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
 </head>
 <body>
   <div class="app-container">
-    <!-- Header -->
-    <header class="header">
-      <div class="brand">
-        <div class="brand-badge">
-          <span class="live-dot"></span>
-          <span>Ceará 2026 / Governo CE</span>
+    <!-- Header Simples e Direto -->
+    <header class="header-simple">
+      <div class="header-left">
+        <div class="badge-live">
+          <span class="pulse-dot"></span>
+          <span>Atualizado em tempo real</span>
         </div>
-        <h1 class="brand-title">Radar de Pesquisas <span>Governo do Ceará</span></h1>
-        <p class="brand-desc">
-          Consulta em tempo real em todos os portais e institutos de pesquisa via Inteligência Artificial do Google Gemini com busca na Web.
-        </p>
+        <h1 class="main-title">Pesquisas <span>Governo do Ceará</span></h1>
+        <p class="main-subtitle">Monitoramento contínuo em todos os institutos (Quaest, Paraná Pesquisas, Ipec, Datafolha e portais de notícias).</p>
       </div>
-
-      <div class="api-key-bar">
-        <div class="api-key-input-wrap">
-          <label for="apiKeyInput" class="visually-hidden">Chave da API Gemini</label>
-          <input 
-            type="password" 
-            id="apiKeyInput" 
-            placeholder="Cole sua Gemini API Key (AI Studio)..." 
-            autocomplete="off" 
-            spellcheck="false"
-          >
-          <button id="toggleKeyVisibility" class="btn-icon" title="Mostrar/Ocultar chave" type="button">
-            👁️
-          </button>
-        </div>
-        <button id="saveKeyBtn" class="btn btn-secondary" type="button">Salvar Chave</button>
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="link-key-helper">
-          Obter chave grátis ↗
-        </a>
+      <div class="header-right">
+        <button id="btnRefresh" class="btn-refresh" type="button" title="Consultar novos resultados na web">
+          <span class="refresh-icon" id="refreshIcon">🔄</span>
+          <span id="refreshText">Atualizar Dados</span>
+        </button>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Search Actions Card -->
-      <section class="card query-panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Verificação Automática na Web</h2>
-            <p class="panel-subtitle">O Gemini buscará ativamente registros no TSE, Quaest, Paraná Pesquisas, Ipec/IPESPE, Datafolha, OPINIÃO e grandes portais de notícias.</p>
-          </div>
-          <div class="status-indicator" id="statusBadge">
-            <span class="status-dot"></span>
-            <span id="statusText">Pronto para consultar</span>
-          </div>
+    <!-- Barra de Filtros Simples -->
+    <nav class="filter-tabs" id="filterTabs">
+      <button type="button" class="tab-btn active" data-filter="geral">
+        📊 Últimas Pesquisas
+      </button>
+      <button type="button" class="tab-btn" data-filter="eleicoes">
+        🗳️ Cenário Eleitoral
+      </button>
+      <button type="button" class="tab-btn" data-filter="governo">
+        📈 Avaliação do Governo
+      </button>
+    </nav>
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+      <div class="status-left">
+        <span class="status-bullet" id="statusBullet"></span>
+        <span id="statusMessage">Carregando dados mais recentes...</span>
+      </div>
+      <span class="status-time" id="lastUpdatedTime"></span>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="content-wrapper">
+      <!-- Painel de Resultados Principais -->
+      <section class="results-card" id="resultsSection">
+        <div class="results-body" id="resultsContent">
+          <!-- Renderizado dinamicamente pelo JS -->
         </div>
 
-        <!-- Preset Filters -->
-        <div class="preset-group">
-          <span class="preset-label">Foco da busca:</span>
-          <div class="preset-chips" id="presetChips">
-            <button type="button" class="chip active" data-prompt="Pesquise nos principais portais e institutos se saíram novas pesquisas eleitorais de intenção de voto ou aprovação para o Governo do Estado do Ceará. Detalhe os percentuais, os candidatos/nomes avaliados, o instituto responsável, a data de divulgação, o período de coleta e o número de registro se houver.">
-              Últimas Pesquisas (Geral)
-            </button>
-            <button type="button" class="chip" data-prompt="Quais são as pesquisas eleitorais registradas e divulgadas mais recentes para a eleição ao Governo do Estado do Ceará em 2026? Apresente os cenários estimulado e espontâneo com os respectivos percentuais.">
-              Cenários Eleitorais 2026
-            </button>
-            <button type="button" class="chip" data-prompt="Consulte as pesquisas mais recentes sobre a taxa de aprovação, desaprovação e avaliação da gestão do atual Governador do Ceará (Elmano de Freitas).">
-              Avaliação do Governo Atual
-            </button>
-            <button type="button" class="chip" data-prompt="Verifique se há alguma pesquisa eleitoral para o Governo do Ceará registrada recentemente no sistema do Tribunal Superior Eleitoral (PesqEle/TSE) com divulgação prevista para os próximos dias ou já publicada.">
-              Registros no TSE (PesqEle)
-            </button>
-          </div>
-        </div>
-
-        <!-- Custom Query Input (Optional) -->
-        <div class="custom-prompt-container">
-          <textarea 
-            id="customPromptInput" 
-            rows="2" 
-            placeholder="Personalize sua pergunta ou clique direto no botão abaixo..."
-          >Pesquise nos principais portais e institutos se saíram novas pesquisas eleitorais de intenção de voto ou aprovação para o Governo do Estado do Ceará. Detalhe os percentuais, os candidatos/nomes avaliados, o instituto responsável, a data de divulgação, o período de coleta e o número de registro se houver.</textarea>
-        </div>
-
-        <div class="action-footer">
-          <div class="action-left">
-            <label class="model-select-label" for="modelSelect">Modelo Gemini:</label>
-            <select id="modelSelect" class="model-select">
-              <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Recomendado - Mais Recente)</option>
-              <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-            </select>
-          </div>
-          <div class="action-right">
-            <button id="btnSearch" class="btn btn-primary" type="button">
-              <span class="btn-spinner" id="searchSpinner"></span>
-              <span id="btnSearchText">🔍 Consultar Todos os Sites Agora</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Results Display Section -->
-      <section class="card result-card" id="resultsSection" style="display: none;">
-        <div class="result-header">
-          <div>
-            <h3 class="result-title">Resultados das Pesquisas</h3>
-            <span class="result-timestamp" id="resultTimestamp"></span>
-          </div>
-          <div class="result-actions">
-            <button class="btn-ghost" id="copyResultBtn" type="button" title="Copiar resposta">
-              📋 Copiar Resumo
-            </button>
-          </div>
-        </div>
-
-        <!-- AI Output Body -->
-        <div class="result-body markdown-rendered" id="resultContent"></div>
-
-        <!-- Grounding / Web Sources Section -->
-        <div class="sources-container" id="sourcesContainer" style="display: none;">
-          <h4 class="sources-title">🌐 Fontes & Links Oficiais Consultados pelo Gemini:</h4>
+        <!-- Fontes e Citações Oficiais -->
+        <div class="sources-panel" id="sourcesPanel" style="display: none;">
+          <div class="sources-header">🌐 Fontes e portais consultados:</div>
           <ul class="sources-list" id="sourcesList"></ul>
-        </div>
-      </section>
-
-      <!-- Welcome / Instructions Card (shown when empty) -->
-      <section class="card empty-state" id="emptyStateCard">
-        <div class="empty-icon">📊</div>
-        <h3>Nenhuma consulta realizada nesta sessão</h3>
-        <p>
-          Insira sua chave da API do Gemini acima e clique em <strong>"Consultar Todos os Sites Agora"</strong>. 
-          O Gemini vasculhará a internet e fontes confiáveis (O Povo, Diário do Nordeste, G1 CE, CNN Brasil, Poder360, etc.) retornando os números mais recentes, datas e institutos.
-        </p>
-        <div class="quick-tips">
-          <div class="tip-item">
-            <strong>⚡ Rápido e Direto:</strong> Carregamento instantâneo, sem propagandas ou popups invasivos.
-          </div>
-          <div class="tip-item">
-            <strong>🔒 Chave Segura:</strong> Sua chave de API fica armazenada localmente apenas no seu navegador.
-          </div>
-          <div class="tip-item">
-            <strong>🌐 Busca Ativa no Google:</strong> A API utiliza Grounding Oficial com a Pesquisa Google integrada para trazer dados reais atualizados.
-          </div>
         </div>
       </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <p>Monitor inteligente de pesquisas para o Governo do Estado do Ceará • Alimentado pela Google Gemini API</p>
+    <!-- Rodapé Discreto -->
+    <footer class="footer-simple">
+      <p>Dados consolidados via Inteligência Artificial Google Gemini com verificação em portais de notícias e no TSE.</p>
     </footer>
   </div>
 
