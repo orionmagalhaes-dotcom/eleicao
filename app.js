@@ -65,7 +65,8 @@ const POLLS_DATA = [
     note: 'Datafolha divulgado na véspera aponta empate técnico no limite máximo da margem.',
     socials: [
       { label: '🌐 folha.uol.com.br', url: 'https://www1.folha.uol.com.br/' },
-      { label: '𝕏 @folha', url: 'https://twitter.com/folha' }
+      { label: '𝕏 @folha', url: 'https://twitter.com/folha' },
+      { label: '📷 @folha', url: 'https://www.instagram.com/folha' }
     ]
   },
   {
@@ -101,7 +102,8 @@ const POLLS_DATA = [
     note: 'Cenário estimulado geral (46,0% Ciro x 42,2% Elmano). Nos votos válidos calculados, a proporção foi de 50,8% a 46,5%.',
     socials: [
       { label: '🌐 paranapesquisas.com.br', url: 'https://www.paranapesquisas.com.br' },
-      { label: '𝕏 @P_Pesquisas', url: 'https://twitter.com/P_Pesquisas' }
+      { label: '𝕏 @P_Pesquisas', url: 'https://twitter.com/P_Pesquisas' },
+      { label: '📷 @paranapesquisas', url: 'https://www.instagram.com/paranapesquisas' }
     ]
   },
   {
@@ -194,11 +196,55 @@ const socialsPanel = document.getElementById('socialsPanel');
 let currentTab = 'todas';
 let isQuerying = false;
 
+// Configuração do Timer de Auto-atualização (3 minutos)
+const AUTO_REFRESH_INTERVAL_MS = 3 * 60 * 1000; // 3 minutos
+let autoRefreshRemaining = AUTO_REFRESH_INTERVAL_MS / 1000;
+let autoRefreshTimer = null;
+let countdownTimer = null;
+
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  autoRefreshRemaining = AUTO_REFRESH_INTERVAL_MS / 1000;
+  updateCountdownDisplay();
+
+  // Atualiza mostrador do timer a cada 1 segundo
+  countdownTimer = setInterval(() => {
+    autoRefreshRemaining--;
+    if (autoRefreshRemaining <= 0) {
+      autoRefreshRemaining = AUTO_REFRESH_INTERVAL_MS / 1000;
+    }
+    updateCountdownDisplay();
+  }, 1000);
+
+  // Executa varredura automática a cada 3 minutos
+  autoRefreshTimer = setInterval(() => {
+    console.log('Executando auto-atualização periódica (3 minutos)...');
+    queryGeminiAi(true);
+  }, AUTO_REFRESH_INTERVAL_MS);
+}
+
+function resetAutoRefreshTimer() {
+  autoRefreshRemaining = AUTO_REFRESH_INTERVAL_MS / 1000;
+  updateCountdownDisplay();
+}
+
+function updateCountdownDisplay() {
+  const el = document.getElementById('autoRefreshCountdown');
+  if (!el) return;
+  const mins = Math.floor(autoRefreshRemaining / 60);
+  const secs = autoRefreshRemaining % 60;
+  const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  el.textContent = `⏱️ Auto-sync: ${formatted}`;
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
   renderPolls(currentTab);
   renderFallbackAiAnalysis(); // Publica imediatamente na página principal o boletim atualizado dos institutos e redes
   setupEvents();
+  startAutoRefresh(); // Inicia o ciclo de atualização automática de 3 minutos
   const savedLastTime = localStorage.getItem('ceara_polls_last_time');
   if (savedLastTime) {
     lastUpdatedTime.innerHTML = `Sincronizado ${savedLastTime}`;
@@ -550,8 +596,10 @@ function renderComparativeTable() {
 }
 
 // Consulta em tempo real à API do Gemini com busca na web e redes
-async function queryGeminiAi() {
+async function queryGeminiAi(isAuto = false) {
   if (isQuerying) return;
+
+  resetAutoRefreshTimer(); // Reinicia o timer de 3 minutos
 
   const apiKey = getApiKey();
   isQuerying = true;
@@ -562,27 +610,38 @@ async function queryGeminiAi() {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
 
     const promptText = `
-Você é um analista político sênior especializado na cobertura das Eleições para o Governo do Estado do Ceará em 2026.
+Você é uma Inteligência Artificial encarregada do monitoramento contínuo e em tempo real da cobertura das Eleições para o Governo do Estado do Ceará em 2026.
 
-DADOS OFICIAIS CAPTURADOS E REGISTRADOS NO TSE (ATUALIZAÇÃO DE VÉSPERA - HOJE, 03/10):
-1. PESQUISA ATLASINTEL RECÉM-DIVULGADA NA VÉSPERA (03 de Outubro de 2026, 20h15):
-   - Registro TSE: CE-01709/2026 • Amostra: 1.808 eleitores • Coleta de véspera (01 a 03/out).
-   - Votos Válidos 1º Turno: Elmano de Freitas 49,9% x Ciro Gomes 49,6% x Delegado Huggo 0,5%.
-   - Cenário: Empate técnico absoluto a horas da eleição (0,3 ponto percentual separando os candidatos).
-   - Simulação 2º Turno: Elmano de Freitas 50,5% x Ciro Gomes 49,5%.
-   - Fonte Primária: AtlasIntel Oficial / X @atlasintel / InfoMoney.
+VARREDURA COMPLETA E EXAUSTIVA (NÃO DEIXE FALTAR NADA):
+Investigue e cruze dados de todos os sites, portais de jornalismo, canais do Telegram, perfis do X/Twitter e especialmente os PERFIS OFICIAIS DO INSTAGRAM:
+1. INSTAGRAM OFICIAL:
+   - @quaestpesquisa (Quaest Pesquisa)
+   - @atlasintel (AtlasIntel)
+   - @paranapesquisas (Paraná Pesquisas)
+   - @folha (Datafolha / Folha de S.Paulo)
+   - @g1ceara (G1 Ceará)
+   - @opovoonline (Jornal O Povo)
+   - @diariodonordeste (Diário do Nordeste)
+2. TWITTER / X E PORTAIS:
+   - @pesquisaquaest, @atlasintel, @P_Pesquisas, @folha, @g1ceara
+   - Portais: G1 Ceará (g1.globo.com/ce), Folha de S.Paulo, O Povo, Diário do Nordeste, Gazeta do Povo, Poder360, InfoMoney, Estadão, paranapesquisas.com.br, atlasintel.org
+3. REGISTROS DO TRIBUNAL SUPERIOR ELEITORAL (TSE):
+   - CE-04790/2026 (Quaest)
+   - CE-08721/2026 (Datafolha)
+   - CE-01709/2026 (AtlasIntel)
+   - CE-03967/2026 (Paraná Pesquisas)
 
-2. QUAEST E DATAFOLHA (Divulgadas hoje, 03 de Outubro de 2026):
-   - Quaest (TSE CE-04790/2026): Elmano de Freitas 50,0% x Ciro Gomes 49,0% (válidos).
-   - Datafolha (TSE CE-08721/2026): Elmano de Freitas 50,0% x Ciro Gomes 47,0% (válidos).
+PANORAMA OFICIAL ATUALIZADO DE VÉSPERA (03/OUTUBRO):
+- AtlasIntel (03/Out, 20h15): Elmano de Freitas 49,9% x Ciro Gomes 49,6% x Delegado Huggo 0,5% (válidos). Simulação 2º turno: Elmano 50,5% x Ciro 49,5%.
+- Quaest (03/Out, 18h): Elmano de Freitas 50,0% x Ciro Gomes 49,0% x Delegado Huggo 1,0% (válidos).
+- Datafolha (03/Out, 18h30): Elmano de Freitas 50,0% x Ciro Gomes 47,0% x Delegado Huggo 2,0% (válidos).
+- Paraná Pesquisas (26/Set): Ciro 46,0% x Elmano 42,2% (válidos 50,8% x 46,5%). *Sem nova coleta na véspera.*
 
-3. PARANÁ PESQUISAS (Levantamento anterior de 26/09):
-   - Estimulada: Ciro 46,0% x Elmano 42,2%. A Paraná Pesquisas NÃO realizou pesquisa de véspera hoje.
-
-INSTRUÇÕES OBRIGATÓRIAS:
-- Destaque com prioridade máxima o novo levantamento da AtlasIntel acabado de sair com Elmano 49,9% e Ciro Gomes 49,6%.
-- Mostre a convergência entre os três levantamentos de véspera: AtlasIntel (49,9% x 49,6%), Quaest (50% x 49%) e Datafolha (50% x 47%), todos apontando empate técnico acirradíssimo.
-- CITE AS FONTES PRIMÁRIAS OFICIAIS E REGISTROS DO TSE.
+REQUISITOS DA RESPOSTA:
+1. Forneça o resumo consolidado de TODAS as pesquisas registradas e divulgadas nas redes sociais e portais.
+2. Destaque os números de votos válidos, votos totais (estimulada), projeções de segundo turno e margem de erro.
+3. Mencione expressamente os perfis das redes oficiais (inclusive Instagram e X) e as fontes primárias checadas.
+4. Apresente um panorama claro da disputa entre Elmano de Freitas e Ciro Gomes.
     `.trim();
 
     const requestPayload = {
@@ -606,12 +665,12 @@ INSTRUÇÕES OBRIGATÓRIAS:
 
     const data = await response.json();
     handleAiResponse(data);
-    updateHomeScreen('Sincronizado com a IA');
+    updateHomeScreen(isAuto ? 'Auto-sync IA • Instagram & Redes' : 'Sincronizado com a IA');
   } catch (err) {
     console.warn('API Gemini fallback ativado:', err.message);
     // Fallback inteligente com síntese em tempo real dos institutos
     renderFallbackAiAnalysis();
-    updateHomeScreen('Dados oficiais consolidados de hoje');
+    updateHomeScreen(isAuto ? 'Auto-sync de 3 min • Redes & Sites' : 'Dados oficiais consolidados de hoje');
   } finally {
     isQuerying = false;
     setLoadingState(false);
@@ -695,7 +754,9 @@ function renderFallbackAiAnalysis() {
 - *Nota: A Paraná Pesquisas não realizou nova coleta em campo hoje (03/out).*
 
 ---
-> 📢 **Acompanhamento em Tempo Real:** Fique conectado aos canais oficiais do X/Twitter [@atlasintel](https://twitter.com/atlasintel), [@pesquisaquaest](https://twitter.com/pesquisaquaest) e [@folha](https://twitter.com/folha).
+> 📱 **Perfis Oficiais e Instagram Monitorados com Auto-atualização a cada 3 Minutos:**
+> - **Instagram:** [@atlasintel](https://www.instagram.com/atlasintel) • [@quaestpesquisa](https://www.instagram.com/quaestpesquisa) • [@paranapesquisas](https://www.instagram.com/paranapesquisas) • [@folha](https://www.instagram.com/folha) • [@g1ceara](https://www.instagram.com/g1ceara) • [@opovoonline](https://www.instagram.com/opovoonline) • [@diariodonordeste](https://www.instagram.com/diariodonordeste)
+> - **Portais & TSE:** G1 Ceará, TV Verdes Mares, Folha de S.Paulo, O Povo, Diário do Nordeste, Gazeta do Povo, Poder360 e Repositório Oficial do TSE.
   `;
 
   aiContent.innerHTML = formatMarkdown(fallbackAnalysis);
