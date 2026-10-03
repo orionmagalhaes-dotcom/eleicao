@@ -200,6 +200,35 @@ function setupEvents() {
     showAlert('Chave padrão restaurada!', 'info');
     queryGeminiAi();
   });
+
+  // Copiar Chave PIX
+  const btnCopyPix = document.getElementById('btnCopyPix');
+  const pixKeyBadge = document.getElementById('pixKeyBadge');
+  const copyPixText = document.getElementById('copyPixText');
+  const copyPixIcon = document.getElementById('copyPixIcon');
+
+  function copyPix() {
+    const pixVal = '02446198325';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pixVal).then(() => {
+        btnCopyPix.classList.add('copied');
+        copyPixIcon.textContent = '✅';
+        copyPixText.textContent = 'Chave Copiada!';
+        setTimeout(() => {
+          btnCopyPix.classList.remove('copied');
+          copyPixIcon.textContent = '📋';
+          copyPixText.textContent = 'Copiar Chave PIX';
+        }, 3000);
+      }).catch(() => {
+        prompt('Chave PIX (CPF):', pixVal);
+      });
+    } else {
+      prompt('Chave PIX (CPF):', pixVal);
+    }
+  }
+
+  if (btnCopyPix) btnCopyPix.addEventListener('click', copyPix);
+  if (pixKeyBadge) pixKeyBadge.addEventListener('click', copyPix);
 }
 
 // Renderiza cards ou visualização específica
