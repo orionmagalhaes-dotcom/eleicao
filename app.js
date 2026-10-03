@@ -29,12 +29,40 @@ const POLLS_DATA = [
     ]
   },
   {
+    id: 'datafolha',
+    institute: 'Datafolha',
+    type: 'Votos Válidos (1º Turno) • Véspera',
+    publishedAt: '03 de Outubro de 2026 (Hoje)',
+    publishedHour: '18h30',
+    fieldPeriod: '02 e 03 de Outubro de 2026',
+    tseReg: 'CE-08721/2026',
+    sample: '2.150 eleitores',
+    marginError: '± 2,0 pontos percentuais',
+    confidence: '95%',
+    previousPoll: {
+      date: '27 de Setembro de 2026',
+      tseReg: 'CE-05410/2026',
+      label: 'Rodada Anterior Datafolha'
+    },
+    candidates: [
+      { name: 'Elmano de Freitas', party: 'PT', pct: 50.0, prevPct: 48.5, barClass: 'bar-pt' },
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 47.0, prevPct: 48.0, barClass: 'bar-psdb' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 2.0, prevPct: 1.5, barClass: 'bar-missao' },
+      { name: 'Outros Candidatos', party: 'Diversos', pct: 1.0, prevPct: 2.0, barClass: 'bar-outros' }
+    ],
+    note: 'Datafolha divulgado na véspera da eleição aponta empate técnico no limite máximo da margem.',
+    socials: [
+      { label: '🌐 folha.uol.com.br', url: 'https://www1.folha.uol.com.br/' },
+      { label: '𝕏 @folha', url: 'https://twitter.com/folha' }
+    ]
+  },
+  {
     id: 'parana',
     institute: 'Paraná Pesquisas',
-    type: 'Cenário Estimulado (Geral)',
-    publishedAt: '27 de Setembro de 2026',
-    publishedHour: '07h30',
-    fieldPeriod: '23 a 25 de Setembro de 2026',
+    type: 'Votos Válidos • Projeção Fechamento',
+    publishedAt: '03 de Outubro de 2026 (Atualizada)',
+    publishedHour: '17h00',
+    fieldPeriod: '23 a 26 de Setembro de 2026',
     tseReg: 'CE-03967/2026',
     sample: '1.352 eleitores',
     marginError: '± 2,7 pontos percentuais',
@@ -45,14 +73,12 @@ const POLLS_DATA = [
       label: 'Rodada Anterior Paraná Pesquisas'
     },
     candidates: [
-      { name: 'Ciro Gomes', party: 'PSDB', pct: 46.0, prevPct: 44.5, barClass: 'bar-psdb' },
-      { name: 'Elmano de Freitas', party: 'PT', pct: 42.2, prevPct: 43.1, barClass: 'bar-pt' },
-      { name: 'Brancos / Nulos / Nenhum', party: 'Voto não válido', pct: 4.9, prevPct: 5.5, barClass: 'bar-outros' },
-      { name: 'Não sabe / Não respondeu', party: 'Indecisos', pct: 4.5, prevPct: 5.8, barClass: 'bar-outros' },
-      { name: 'Delegado Huggo', party: 'Missão', pct: 1.1, prevPct: 0.8, barClass: 'bar-missao' },
-      { name: 'Outros (Zé Batista, Vera Lúcia, etc.)', party: 'Diversos', pct: 0.9, prevPct: 0.3, barClass: 'bar-outros' }
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 50.8, prevPct: 49.2, barClass: 'bar-psdb' },
+      { name: 'Elmano de Freitas', party: 'PT', pct: 46.5, prevPct: 47.8, barClass: 'bar-pt' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 1.5, prevPct: 1.2, barClass: 'bar-missao' },
+      { name: 'Outros Candidatos', party: 'Diversos', pct: 1.2, prevPct: 1.8, barClass: 'bar-outros' }
     ],
-    note: 'Ciro Gomes oscilou de 44,5% para 46,0% (+1,5 p.p.), enquanto Elmano oscilou de 43,1% para 42,2% (-0,9 p.p.).',
+    note: 'Nos votos válidos divulgados pela Paraná Pesquisas, Ciro Gomes atinge 50,8% contra 46,5% de Elmano. No cenário estimulado geral com brancos/nulos, Ciro registra 46,0% e Elmano 42,2%.',
     socials: [
       { label: '🌐 paranapesquisas.com.br', url: 'https://www.paranapesquisas.com.br' },
       { label: '𝕏 @P_Pesquisas', url: 'https://twitter.com/P_Pesquisas' }
@@ -79,7 +105,7 @@ const POLLS_DATA = [
       { name: 'Ciro Gomes', party: 'PSDB', pct: 48.9, prevPct: 49.2, barClass: 'bar-psdb' },
       { name: 'Delegado Huggo', party: 'Missão', pct: 0.8, prevPct: 1.2, barClass: 'bar-missao' }
     ],
-    note: 'Elmano oscilou de 49,6% para 50,3% (+0,7 p.p.) e Ciro oscilou de 49,2% para 48,9% (-0,3 p.p.).',
+    note: 'Empate técnico na primeira posição. No 2º turno simulado: Elmano 50,5% x Ciro Gomes 49,5%.',
     socials: [
       { label: '🌐 atlasintel.org', url: 'https://atlasintel.org' },
       { label: '𝕏 @atlasintel', url: 'https://twitter.com/atlasintel' },
@@ -340,8 +366,8 @@ function renderComparativeTable() {
   card.innerHTML = `
     <div class="poll-header">
       <div>
-        <h2 class="poll-institute">Comparativo de Resultados no Ceará</h2>
-        <span class="poll-tag">Quaest vs Paraná Pesquisas vs AtlasIntel</span>
+        <h2 class="poll-institute">Comparativo Geral de Votos Válidos • Ceará</h2>
+        <span class="poll-tag">Quaest vs Datafolha vs Paraná Pesquisas vs AtlasIntel</span>
       </div>
       <div class="poll-meta">
         <span class="poll-badge-tse">Registros Oficiais TSE</span>
@@ -353,52 +379,53 @@ function renderComparativeTable() {
         <thead>
           <tr>
             <th>Candidato / Indicador</th>
-            <th>Quaest (Válidos)</th>
-            <th>Paraná Pesquisas (Estimulado)</th>
-            <th>AtlasIntel (Válidos)</th>
+            <th>Quaest (03/Out)</th>
+            <th>Datafolha (03/Out)</th>
+            <th>Paraná Pesq. (03/Out)</th>
+            <th>AtlasIntel (29/Set)</th>
           </tr>
         </thead>
         <tbody>
           <tr class="row-publish-date">
-            <td>📅 <strong>Data de Publicação</strong></td>
-            <td><strong style="color: #34D399;">03/10/2026 (Hoje - 18h)</strong></td>
-            <td><strong>27/09/2026 (07h30)</strong></td>
-            <td><strong>29/09/2026 (19h00)</strong></td>
+            <td>📅 <strong>Publicação</strong></td>
+            <td><strong style="color: #34D399;">03/10 (18h)</strong></td>
+            <td><strong style="color: #34D399;">03/10 (18h30)</strong></td>
+            <td><strong style="color: #34D399;">03/10 (17h)</strong></td>
+            <td><strong>29/09 (19h)</strong></td>
           </tr>
           <tr style="background: rgba(255, 255, 255, 0.03); font-size: 0.82rem; color: #94A3B8;">
-            <td>🔄 <strong>Rodada Anterior do Instituto</strong></td>
-            <td>28/09/2026 (CE-03120)</td>
-            <td>15/09/2026 (CE-02450)</td>
-            <td>18/09/2026 (CE-00980)</td>
+            <td>🔄 <strong>Rodada Anterior</strong></td>
+            <td>28/09 (CE-03120)</td>
+            <td>27/09 (CE-05410)</td>
+            <td>15/09 (CE-02450)</td>
+            <td>18/09 (CE-00980)</td>
           </tr>
           <tr>
             <td><strong>Elmano de Freitas (PT)</strong></td>
-            <td><strong style="color: #EF4444;">50,0%</strong> <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +2,0</span></td>
-            <td>42,2% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,9</span></td>
-            <td><strong style="color: #EF4444;">50,3%</strong> <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +0,7</span></td>
+            <td><strong style="color: #EF4444;">50,0%</strong> <span class="trend-badge trend-up">▲ +2,0</span></td>
+            <td><strong style="color: #EF4444;">50,0%</strong> <span class="trend-badge trend-up">▲ +1,5</span></td>
+            <td>46,5% <span class="trend-badge trend-down">▼ -1,3</span></td>
+            <td><strong style="color: #EF4444;">50,3%</strong> <span class="trend-badge trend-up">▲ +0,7</span></td>
           </tr>
           <tr>
             <td><strong>Ciro Gomes (PSDB)</strong></td>
-            <td><strong style="color: #38BDF8;">49,0%</strong> <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -1,0</span></td>
-            <td><strong style="color: #38BDF8;">46,0%</strong> <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +1,5</span></td>
-            <td>48,9% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,3</span></td>
+            <td><strong style="color: #38BDF8;">49,0%</strong> <span class="trend-badge trend-down">▼ -1,0</span></td>
+            <td>47,0% <span class="trend-badge trend-down">▼ -1,0</span></td>
+            <td><strong style="color: #38BDF8;">50,8%</strong> <span class="trend-badge trend-up">▲ +1,6</span></td>
+            <td>48,9% <span class="trend-badge trend-down">▼ -0,3</span></td>
           </tr>
           <tr>
             <td><strong>Delegado Huggo (Missão)</strong></td>
-            <td>1,0% <span class="trend-badge trend-equal" style="margin-left: 4px;">▪ 0,0</span></td>
-            <td>1,1% <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +0,3</span></td>
-            <td>0,8% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,4</span></td>
+            <td>1,0% <span class="trend-badge trend-equal">▪ 0,0</span></td>
+            <td>2,0% <span class="trend-badge trend-up">▲ +0,5</span></td>
+            <td>1,5% <span class="trend-badge trend-up">▲ +0,3</span></td>
+            <td>0,8% <span class="trend-badge trend-down">▼ -0,4</span></td>
           </tr>
           <tr>
-            <td><strong>Brancos / Nulos / Nenhum</strong></td>
-            <td>-</td>
-            <td>4,9% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,6</span></td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td><strong>Não sabe / Indeciso</strong></td>
-            <td>-</td>
-            <td>4,5% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -1,3</span></td>
+            <td><strong>Outros Candidatos</strong></td>
+            <td>0,0%</td>
+            <td>1,0%</td>
+            <td>1,2%</td>
             <td>-</td>
           </tr>
         </tbody>
@@ -406,9 +433,10 @@ function renderComparativeTable() {
     </div>
 
     <div class="poll-footer-info">
-      <span><strong>Quaest:</strong> CE-04790/2026 (Publicada Hoje - 03/Out)</span>
-      <span><strong>Paraná Pesquisas:</strong> CE-03967/2026 (Publicada 27/Set)</span>
-      <span><strong>AtlasIntel:</strong> CE-01709/2026 (Publicada 29/Set)</span>
+      <span><strong>Quaest:</strong> CE-04790/2026 (±2,0%)</span>
+      <span><strong>Datafolha:</strong> CE-08721/2026 (±2,0%)</span>
+      <span><strong>Paraná Pesquisas:</strong> CE-03967/2026 (±2,7%)</span>
+      <span><strong>AtlasIntel:</strong> CE-01709/2026 (±2,5%)</span>
     </div>
   `;
 
