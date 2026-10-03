@@ -363,11 +363,70 @@ body {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  flex-wrap: wrap;
 }
 
 .candidate-party {
   font-size: 0.78rem;
   color: var(--text-muted);
+  font-weight: normal;
+}
+
+/* Badges de Evolução / Comparativo */
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.trend-up {
+  color: #34D399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.trend-down {
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.trend-equal {
+  color: #94A3B8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.prev-val {
+  font-weight: normal;
+  opacity: 0.85;
+  font-size: 0.7rem;
+}
+
+/* Caixa comparativa com a rodada anterior */
+.prev-poll-comparison {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.09);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+}
+
+.prev-poll-header {
+  color: #93C5FD;
+  font-size: 0.82rem;
+  margin-bottom: 0.2rem;
+}
+
+.prev-poll-text {
+  color: var(--text-muted);
+  line-height: 1.4;
+}
   font-weight: normal;
 }
 

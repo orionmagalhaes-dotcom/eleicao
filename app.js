@@ -11,13 +11,18 @@ const POLLS_DATA = [
     sample: '2.004 eleitores',
     marginError: '± 2,0 pontos percentuais',
     confidence: '95%',
+    previousPoll: {
+      date: '28 de Setembro de 2026',
+      tseReg: 'CE-03120/2026',
+      label: 'Rodada Anterior Quaest'
+    },
     candidates: [
-      { name: 'Elmano de Freitas', party: 'PT', pct: 50.0, barClass: 'bar-pt' },
-      { name: 'Ciro Gomes', party: 'PSDB', pct: 49.0, barClass: 'bar-psdb' },
-      { name: 'Delegado Huggo', party: 'Missão', pct: 1.0, barClass: 'bar-missao' },
-      { name: 'Outros Candidatos', party: 'Diversos', pct: 0.0, barClass: 'bar-outros' }
+      { name: 'Elmano de Freitas', party: 'PT', pct: 50.0, prevPct: 48.0, barClass: 'bar-pt' },
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 49.0, prevPct: 50.0, barClass: 'bar-psdb' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 1.0, prevPct: 1.0, barClass: 'bar-missao' },
+      { name: 'Outros Candidatos', party: 'Diversos', pct: 0.0, prevPct: 1.0, barClass: 'bar-outros' }
     ],
-    note: 'Empate técnico rigoroso na margem de erro entre Elmano de Freitas e Ciro Gomes.',
+    note: 'Empate técnico rigoroso na margem de erro entre Elmano de Freitas e Ciro Gomes. Elmano oscilou +2 p.p. e Ciro oscilou -1 p.p. em relação à rodada de 28/Set.',
     socials: [
       { label: '𝕏 @pesquisaquaest', url: 'https://twitter.com/pesquisaquaest' },
       { label: '📷 @quaestpesquisa', url: 'https://www.instagram.com/quaestpesquisa' }
@@ -34,15 +39,20 @@ const POLLS_DATA = [
     sample: '1.352 eleitores',
     marginError: '± 2,7 pontos percentuais',
     confidence: '95%',
+    previousPoll: {
+      date: '15 de Setembro de 2026',
+      tseReg: 'CE-02450/2026',
+      label: 'Rodada Anterior Paraná Pesquisas'
+    },
     candidates: [
-      { name: 'Ciro Gomes', party: 'PSDB', pct: 46.0, barClass: 'bar-psdb' },
-      { name: 'Elmano de Freitas', party: 'PT', pct: 42.2, barClass: 'bar-pt' },
-      { name: 'Brancos / Nulos / Nenhum', party: 'Voto não válido', pct: 4.9, barClass: 'bar-outros' },
-      { name: 'Não sabe / Não respondeu', party: 'Indecisos', pct: 4.5, barClass: 'bar-outros' },
-      { name: 'Delegado Huggo', party: 'Missão', pct: 1.1, barClass: 'bar-missao' },
-      { name: 'Outros (Zé Batista, Vera Lúcia, etc.)', party: 'Diversos', pct: 0.9, barClass: 'bar-outros' }
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 46.0, prevPct: 44.5, barClass: 'bar-psdb' },
+      { name: 'Elmano de Freitas', party: 'PT', pct: 42.2, prevPct: 43.1, barClass: 'bar-pt' },
+      { name: 'Brancos / Nulos / Nenhum', party: 'Voto não válido', pct: 4.9, prevPct: 5.5, barClass: 'bar-outros' },
+      { name: 'Não sabe / Não respondeu', party: 'Indecisos', pct: 4.5, prevPct: 5.8, barClass: 'bar-outros' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 1.1, prevPct: 0.8, barClass: 'bar-missao' },
+      { name: 'Outros (Zé Batista, Vera Lúcia, etc.)', party: 'Diversos', pct: 0.9, prevPct: 0.3, barClass: 'bar-outros' }
     ],
-    note: 'Cenário estimulado com liderança numérica de Ciro Gomes dentro da margem de erro.',
+    note: 'Ciro Gomes oscilou de 44,5% para 46,0% (+1,5 p.p.), enquanto Elmano oscilou de 43,1% para 42,2% (-0,9 p.p.).',
     socials: [
       { label: '🌐 paranapesquisas.com.br', url: 'https://www.paranapesquisas.com.br' },
       { label: '𝕏 @P_Pesquisas', url: 'https://twitter.com/P_Pesquisas' }
@@ -59,12 +69,17 @@ const POLLS_DATA = [
     sample: '1.600 eleitores',
     marginError: '± 2,5 pontos percentuais',
     confidence: '95%',
+    previousPoll: {
+      date: '18 de Setembro de 2026',
+      tseReg: 'CE-00980/2026',
+      label: 'Rodada Anterior AtlasIntel'
+    },
     candidates: [
-      { name: 'Elmano de Freitas', party: 'PT', pct: 50.3, barClass: 'bar-pt' },
-      { name: 'Ciro Gomes', party: 'PSDB', pct: 48.9, barClass: 'bar-psdb' },
-      { name: 'Delegado Huggo', party: 'Missão', pct: 0.8, barClass: 'bar-missao' }
+      { name: 'Elmano de Freitas', party: 'PT', pct: 50.3, prevPct: 49.6, barClass: 'bar-pt' },
+      { name: 'Ciro Gomes', party: 'PSDB', pct: 48.9, prevPct: 49.2, barClass: 'bar-psdb' },
+      { name: 'Delegado Huggo', party: 'Missão', pct: 0.8, prevPct: 1.2, barClass: 'bar-missao' }
     ],
-    note: 'Empate técnico na primeira posição. No 2º turno simulado: Elmano 50,5% x Ciro Gomes 49,5%.',
+    note: 'Elmano oscilou de 49,6% para 50,3% (+0,7 p.p.) e Ciro oscilou de 49,2% para 48,9% (-0,3 p.p.).',
     socials: [
       { label: '🌐 atlasintel.org', url: 'https://atlasintel.org' },
       { label: '𝕏 @atlasintel', url: 'https://twitter.com/atlasintel' },
@@ -200,19 +215,45 @@ function renderPolls(tab) {
     const card = document.createElement('article');
     card.className = 'poll-card';
 
-    const candidatesHtml = poll.candidates.map(c => `
-      <div class="candidate-row">
-        <div class="candidate-info">
-          <span class="candidate-name">
-            ${escapeHTML(c.name)} <span class="candidate-party">(${escapeHTML(c.party)})</span>
-          </span>
-          <span class="candidate-pct">${c.pct.toFixed(1)}%</span>
+    const candidatesHtml = poll.candidates.map(c => {
+      let diffBadge = '';
+      if (typeof c.prevPct === 'number') {
+        const diff = Number((c.pct - c.prevPct).toFixed(1));
+        if (diff > 0) {
+          diffBadge = `<span class="trend-badge trend-up">▲ +${diff.toFixed(1)} p.p. <span class="prev-val">(era ${c.prevPct.toFixed(1)}%)</span></span>`;
+        } else if (diff < 0) {
+          diffBadge = `<span class="trend-badge trend-down">▼ ${diff.toFixed(1)} p.p. <span class="prev-val">(era ${c.prevPct.toFixed(1)}%)</span></span>`;
+        } else {
+          diffBadge = `<span class="trend-badge trend-equal">▪ 0.0 p.p. <span class="prev-val">(estável)</span></span>`;
+        }
+      }
+
+      return `
+        <div class="candidate-row">
+          <div class="candidate-info">
+            <span class="candidate-name">
+              ${escapeHTML(c.name)} <span class="candidate-party">(${escapeHTML(c.party)})</span>
+              ${diffBadge}
+            </span>
+            <span class="candidate-pct">${c.pct.toFixed(1)}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill ${c.barClass}" style="width: ${Math.min(c.pct, 100)}%;"></div>
+          </div>
         </div>
-        <div class="bar-track">
-          <div class="bar-fill ${c.barClass}" style="width: ${Math.min(c.pct, 100)}%;"></div>
+      `;
+    }).join('');
+
+    const prevPollBox = poll.previousPoll ? `
+      <div class="prev-poll-comparison">
+        <div class="prev-poll-header">
+          <span>🔄 <strong>Comparativo com a rodada anterior deste mesmo instituto:</strong></span>
         </div>
+        <p class="prev-poll-text">
+          Pesquisa anterior divulgada em <strong>${escapeHTML(poll.previousPoll.date)}</strong> sob o registro TSE <strong>${escapeHTML(poll.previousPoll.tseReg)}</strong>.
+        </p>
       </div>
-    `).join('');
+    ` : '';
 
     const socialLinksHtml = poll.socials ? `
       <div style="margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
@@ -220,7 +261,7 @@ function renderPolls(tab) {
       </div>
     ` : '';
 
-      card.innerHTML = `
+    card.innerHTML = `
       <div class="poll-header">
         <div>
           <h2 class="poll-institute">${escapeHTML(poll.institute)}</h2>
@@ -237,6 +278,8 @@ function renderPolls(tab) {
       <div class="candidates-list">
         ${candidatesHtml}
       </div>
+
+      ${prevPollBox}
 
       <div class="poll-footer-info">
         <span>📍 <strong>Amostra:</strong> ${escapeHTML(poll.sample)}</span>
@@ -288,34 +331,40 @@ function renderComparativeTable() {
             <td><strong>27/09/2026 (07h30)</strong></td>
             <td><strong>29/09/2026 (19h00)</strong></td>
           </tr>
+          <tr style="background: rgba(255, 255, 255, 0.03); font-size: 0.82rem; color: #94A3B8;">
+            <td>🔄 <strong>Rodada Anterior do Instituto</strong></td>
+            <td>28/09/2026 (CE-03120)</td>
+            <td>15/09/2026 (CE-02450)</td>
+            <td>18/09/2026 (CE-00980)</td>
+          </tr>
           <tr>
             <td><strong>Elmano de Freitas (PT)</strong></td>
-            <td><strong style="color: #EF4444;">50,0%</strong></td>
-            <td>42,2%</td>
-            <td><strong style="color: #EF4444;">50,3%</strong></td>
+            <td><strong style="color: #EF4444;">50,0%</strong> <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +2,0</span></td>
+            <td>42,2% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,9</span></td>
+            <td><strong style="color: #EF4444;">50,3%</strong> <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +0,7</span></td>
           </tr>
           <tr>
             <td><strong>Ciro Gomes (PSDB)</strong></td>
-            <td><strong style="color: #38BDF8;">49,0%</strong></td>
-            <td><strong style="color: #38BDF8;">46,0%</strong></td>
-            <td>48,9%</td>
+            <td><strong style="color: #38BDF8;">49,0%</strong> <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -1,0</span></td>
+            <td><strong style="color: #38BDF8;">46,0%</strong> <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +1,5</span></td>
+            <td>48,9% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,3</span></td>
           </tr>
           <tr>
             <td><strong>Delegado Huggo (Missão)</strong></td>
-            <td>1,0%</td>
-            <td>1,1%</td>
-            <td>0,8%</td>
+            <td>1,0% <span class="trend-badge trend-equal" style="margin-left: 4px;">▪ 0,0</span></td>
+            <td>1,1% <span class="trend-badge trend-up" style="margin-left: 4px;">▲ +0,3</span></td>
+            <td>0,8% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,4</span></td>
           </tr>
           <tr>
             <td><strong>Brancos / Nulos / Nenhum</strong></td>
             <td>-</td>
-            <td>4,9%</td>
+            <td>4,9% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -0,6</span></td>
             <td>-</td>
           </tr>
           <tr>
             <td><strong>Não sabe / Indeciso</strong></td>
             <td>-</td>
-            <td>4,5%</td>
+            <td>4,5% <span class="trend-badge trend-down" style="margin-left: 4px;">▼ -1,3</span></td>
             <td>-</td>
           </tr>
         </tbody>
