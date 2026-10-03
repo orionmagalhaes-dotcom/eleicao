@@ -191,6 +191,7 @@ let isQuerying = false;
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
   renderPolls(currentTab);
+  renderFallbackAiAnalysis(); // Publica imediatamente na página principal o boletim atualizado dos institutos e redes
   setupEvents();
   const savedLastTime = localStorage.getItem('ceara_polls_last_time');
   if (savedLastTime) {
@@ -603,10 +604,17 @@ function updateHomeScreen(sourceText = '') {
   localStorage.setItem('ceara_polls_last_time', `Hoje às ${timeStr}`);
 
   // 5. Mensagem de status confirmando atualização da tela inicial
-  setStatus(`✅ Tela inicial atualizada com sucesso (${sourceText})`, 'normal');
+  setStatus(`✅ Pesquisas e redes atualizadas na página principal (${sourceText})`, 'normal');
 
-  // 6. Rola suavemente para a tela inicial
-  pollsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // 6. Rola suavemente para o boletim da IA publicado no topo da página principal
+  if (aiSummarySection && aiSummarySection.style.display !== 'none') {
+    aiSummarySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    aiSummarySection.classList.remove('updated-pulse');
+    void aiSummarySection.offsetWidth;
+    aiSummarySection.classList.add('updated-pulse');
+  } else {
+    pollsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // Síntese jornalística analítica gerada quando os servidores do Gemini estiverem em sobrecarga
@@ -682,11 +690,11 @@ function showAlert(msg, type = 'warning') {
 function setLoadingState(loading) {
   if (loading) {
     btnRefresh.classList.add('loading');
-    refreshText.textContent = 'Buscando Redes...';
-    setStatus('Vasculhando portais, redes e institutos na web...', 'loading');
+    refreshText.textContent = 'Buscando em sites e redes...';
+    setStatus('Varrendo portais de notícias, redes sociais oficiais e institutos na web...', 'loading');
   } else {
     btnRefresh.classList.remove('loading');
-    refreshText.textContent = 'Consultar Redes & IA';
+    refreshText.textContent = 'Atualizar pesquisas';
   }
 }
 
